@@ -14,10 +14,13 @@ export const PROGRAMS = {
   TOKEN_2022: address("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
   /** SAS event authority PDA. */
   EVENT_AUTHORITY: address("DzSpKpST2TSyrxokMXchFz3G2yn5WEGoxzpGEUDjCX4g"),
-  /** Dark Protocol program (shielded balances, encrypted assets). */
-  DARK_PROTOCOL: address("3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC"),
-  /** Dark shielded wallet program. */
-  SHIELDED_WALLET: address("4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg"),
+  /**
+   * Current Dark Protocol note pool. Same program as the shielded wallet.
+   * Executable on devnet. Not deployed on mainnet.
+   */
+  DARK_PROTOCOL: address("E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm"),
+  /** Alias of DARK_PROTOCOL. The separate legacy shielded-wallet id is retired. */
+  SHIELDED_WALLET: address("E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm"),
 } as const;
 
 export type DarkNetwork = "devnet" | "mainnet" | "localnet";

@@ -1,5 +1,5 @@
 /**
- * @dark-protocol/tee-agents
+ * @openclawdsol/dark-tee-agents
  *
  * TEE-attested confidential AI agents on Solana. Spawn enclave-backed agents,
  * anchor their identity in the Solana Attestation Service, pay for sealed

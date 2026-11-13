@@ -1,4 +1,4 @@
-# @dark-protocol/tee-agents
+# @openclawdsol/dark-tee-agents
 
 > TEE-attested **confidential AI agents** on Solana — sealed inference paid for
 > with **x402 private payments**, anchored by the **Solana Attestation Service**.
@@ -23,7 +23,7 @@ spawn enclave → verify quote → seal prompt → pay (x402) → infer → on-c
 ## Install
 
 ```bash
-npm install @dark-protocol/tee-agents
+npm install @openclawdsol/dark-tee-agents
 ```
 
 ## Quick start
@@ -36,7 +36,7 @@ import {
   generateSigningKeypair,
   toBase58,
   PAYMENT_ASSETS,
-} from "@dark-protocol/tee-agents";
+} from "@openclawdsol/dark-tee-agents";
 import { address } from "@solana/kit";
 
 // 1. Spawn a confidential agent (generates enclave keys + a TEE quote).
@@ -77,7 +77,7 @@ console.log(result.text); // decrypted only on the client
 ### Anchor the agent on-chain (SAS)
 
 ```ts
-import { DarkAttestationService, DARK_SCHEMAS } from "@dark-protocol/tee-agents";
+import { DarkAttestationService, DARK_SCHEMAS } from "@openclawdsol/dark-tee-agents";
 
 const sas = DarkAttestationService.fromNetwork("devnet", process.env.HELIUS_API_KEY);
 
@@ -127,7 +127,7 @@ Or from the repo root: `npm run tee:demo`.
 | Component | Address |
 | --- | --- |
 | Solana Attestation Service | `22zoJMtdu4tQc2PzL74ZUT7FrwgB1Udec8DdW4yw4BdG` |
-| Dark Protocol | `3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC` |
+| Dark Protocol note pool | `E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm` |
 
 ## Security status
 

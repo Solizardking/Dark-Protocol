@@ -143,7 +143,7 @@ export type {
 ### Basic Price Oracle
 
 ```typescript
-import { PriceOracle, KNOWN_TOKENS } from '@dark-protocol/sdk';
+import { PriceOracle, KNOWN_TOKENS } from '@openclawdsol/dark-protocol-sdk';
 
 const oracle = new PriceOracle({
   birdeyeApiKey: process.env.BIRDEYE_API_KEY,
@@ -165,7 +165,7 @@ console.log(`1 SOL = ${rate} USDC`);
 ### Swap with Oracle Protection
 
 ```typescript
-import { DarkProtocolClient, PrivateSwapManager } from '@dark-protocol/sdk';
+import { DarkProtocolClient, PrivateSwapManager } from '@openclawdsol/dark-protocol-sdk';
 
 const client = await DarkProtocolClient.create({
   heliusApiKey: process.env.HELIUS_API_KEY!,
@@ -277,7 +277,7 @@ The TypeScript SDK now mirrors the Rust implementation:
 
 ### For Users
 
-1. ✅ **Install SDK**: `npm install @dark-protocol/sdk`
+1. ✅ **Install SDK**: `npm install @openclawdsol/dark-protocol-sdk`
 2. ✅ **Set API Keys**: Birdeye, Jupiter, Helius
 3. ✅ **Initialize Client**: `DarkProtocolClient.create()`
 4. ✅ **Execute Swaps**: With oracle protection

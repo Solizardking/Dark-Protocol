@@ -15,7 +15,10 @@ export const PROGRAM_IDS = {
   DARK_PROTOCOL: new PublicKey('E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm'),
   /** Alias for the shielded wallet program (same contract) */
   SHIELDED_WALLET: new PublicKey('E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm'),
-  /** MAINNET placeholder — replace after `solana program deploy` on mainnet */
+  /**
+   * Not a separate mainnet deployment. No mainnet account exists for this id.
+   * Do not send mainnet SOL to the note pool.
+   */
   DARK_PROTOCOL_MAINNET: new PublicKey('E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm'),
 };
 
