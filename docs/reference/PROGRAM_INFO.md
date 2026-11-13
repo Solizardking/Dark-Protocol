@@ -22,19 +22,41 @@ seed phrases are deliberately omitted.**
 
 ## 📋 Program IDs
 
-### Production Program IDs (Current)
+### Current note pool
+
+The shielded note pool and the shielded wallet are the same program.
+`declare_id!` in `dark-protocol-program` is:
+
+```
+E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm
+```
+
+`Anchor.toml` lists that id under `[programs.localnet]`. A public RPC read
+on 13 November 2026 found an upgradeable program account on **devnet** and
+no account on mainnet. Devnet upgrade authority at that read:
+`AAqkn72VgkZqFbWggn9SvzjzMRW5zsZrTe5VZKu9DwaM`.
+Bytecode was not compared to this tree. Do not treat the deployment as audited
+or as a mainnet program.
+
+### Historical program IDs (do not use for new work)
 
 ```
 Dark Protocol Program ID: 3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC
 Shielded Wallet Program ID: 4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg
 ```
 
+These remain executable on devnet. Their program-ID keypairs were published
+in earlier revisions of this file. On 13 November 2026 the devnet upgrade
+authority for both was `5m8qxm4j75VQCv34oUThE5QNbKJG7KHfd85NdK4dVagS`.
+`3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC` is not a program on mainnet.
+
 ### Network Deployment Status
 
-| Program | Localnet | Devnet | Mainnet |
-|---------|----------|--------|---------|
-| **dark-protocol** | `3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC` | ✅ **DEPLOYED** | Not Deployed |
-| **shielded-wallet** | `4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg` | ✅ **DEPLOYED** | Not Deployed |
+| Program | Id | Devnet (13 Nov 2026) | Mainnet (13 Nov 2026) |
+|---------|----|----------------------|------------------------|
+| **note pool (current)** | `E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm` | Executable program account | No account |
+| **legacy dark-protocol** | `3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC` | Executable, keypair published | System-owned account, not a program |
+| **legacy shielded-wallet** | `4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg` | Executable, keypair published | No account |
 
 ### Deployment Signatures (Devnet)
 
@@ -55,22 +77,22 @@ Signature: 3iLxV1XYQyajNSFZ7sqZkC1SZ91hvdtxVN2v48S4FkstUKDcDcQGKu7A2PJXV2ccthT3m
 > They are **not** documented here. Store keypairs in `.secrets/` (gitignored),
 > a hardware wallet, or a password manager — never in a doc.
 
-### Dark Protocol Keypair
+### Legacy Dark Protocol Keypair
 
 - **Program ID (public, on-chain):** `3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC`
 - **Local keypair file (do NOT commit):** `target/deploy/dark_protocol-keypair.json`
-- **Status:** compromised by the prior leak; only useful for redeploying under the *same* program ID, which is risky to do given the leak.
+- **Status:** compromised by the prior leak. Do not deploy new code under this id.
 
-### Shielded Wallet Keypair
+### Legacy Shielded Wallet Keypair
 
 - **Program ID (public, on-chain):** `4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg`
 - **Local keypair file (do NOT commit):** `target/deploy/shielded_wallet-keypair.json`
-- **Status:** compromised by the prior leak; same caveat as above.
+- **Status:** compromised by the prior leak. Same caveat as above.
 
-### Upgrade Authority
+### Legacy upgrade authority
 
 - **Address:** `5m8qxm4j75VQCv34oUThE5QNbKJG7KHfd85NdK4dVagS`
-- **Status:** keypair currently **lost / unaccounted-for**. Until it is recovered, the deployed devnet programs cannot be upgraded or transferred. Plan accordingly: any future change requires either recovering this key or deploying fresh programs under new IDs.
+- **Status:** this file records the keypair as lost / unaccounted-for. A devnet read on 13 November 2026 still shows this address as the upgrade authority of the two legacy programs above. The current note pool `E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm` has a different devnet upgrade authority: `AAqkn72VgkZqFbWggn9SvzjzMRW5zsZrTe5VZKu9DwaM`.
 
 ## 📦 Compiled Binaries
 
@@ -92,31 +114,27 @@ Signature: 3iLxV1XYQyajNSFZ7sqZkC1SZ91hvdtxVN2v48S4FkstUKDcDcQGKu7A2PJXV2ccthT3m
 
 ### Anchor.toml Configuration
 
-The `Anchor.toml` file is configured with the following program IDs across all networks:
+The current note pool manifest is `dark-protocol-program/Anchor.toml`.
+It declares one id, and only for localnet:
 
 ```toml
 [programs.localnet]
-dark_protocol = "3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC"
-shielded_wallet = "4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg"
-
-[programs.devnet]
-dark_protocol = "3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC"
-shielded_wallet = "4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg"
-
-[programs.mainnet]
-dark_protocol = "3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC"
-shielded_wallet = "4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg"
+dark_protocol_program = "E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm"
 ```
 
 ### Program lib.rs Declaration
 
-**dark-protocol/src/lib.rs:**
+**dark-protocol-program/programs/dark-protocol-program/src/lib.rs:**
+
 ```rust
-declare_id!("3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC");
+declare_id!("E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm");
 ```
 
-**shielded-wallet/src/lib.rs:**
+The two `declare_id!` values below belong to the legacy programs whose
+keypairs were published. They are not the current note pool.
+
 ```rust
+declare_id!("3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC");
 declare_id!("4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg");
 ```
 

@@ -4,7 +4,7 @@
  *   spawn enclave -> verify quote -> derive SAS PDAs -> x402 pay -> sealed
  *   inference -> on-chain receipt payload
  *
- * Runs with no network/keys: `npm run build && npm run demo -w @dark-protocol/tee-agents`.
+ * Runs with no network/keys: `npm run build && npm run demo -w @openclawdsol/dark-tee-agents`.
  */
 import { address } from "@solana/kit";
 import {

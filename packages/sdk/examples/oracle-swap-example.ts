@@ -12,7 +12,7 @@ import {
   KNOWN_TOKENS,
   formatPrice,
   formatSlippage,
-} from '@dark-protocol/sdk';
+} from '@openclawdsol/dark-protocol-sdk';
 import { PublicKey, Keypair } from '@solana/web3.js';
 
 async function main() {

@@ -100,7 +100,9 @@ export function getWSEndpoint(
 }
 
 /**
- * Dark Protocol program IDs for different networks
+ * Dark Protocol program IDs for different networks.
+ * There is no mainnet deployment. `mainnet` repeats the devnet/localnet id
+ * so callers can see the address, and must not send mainnet value to it.
  */
 export const PROGRAM_IDS = {
   mainnet: DARK_PROTOCOL_PROGRAM_ID,
@@ -163,7 +165,7 @@ export function resolveConfig(config: SDKConfig = {}): Required<Omit<SDKConfig, 
  * Example usage:
  *
  * ```typescript
- * import { resolveConfig } from '@dark-protocol/sdk';
+ * import { resolveConfig } from '@openclawdsol/dark-protocol-sdk';
  *
  * const config1 = resolveConfig({ cluster: 'devnet' });
  * const config2 = resolveConfig({ cluster: 'devnet', useSecureRpc: true });

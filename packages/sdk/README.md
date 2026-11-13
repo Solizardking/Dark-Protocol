@@ -2,7 +2,7 @@
 
 **Privacy-first DeFi SDK for Solana with Zcash Sapling integration**
 
-[![npm version](https://img.shields.io/npm/v/@dark-protocol/sdk)](https://www.npmjs.com/package/@dark-protocol/sdk)
+[![npm version](https://img.shields.io/npm/v/@openclawdsol/dark-protocol-sdk)](https://www.npmjs.com/package/@openclawdsol/dark-protocol-sdk)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -15,17 +15,17 @@ A comprehensive TypeScript SDK for interacting with Dark Protocol - bringing Zca
 ### Installation
 
 ```bash
-npm install @dark-protocol/sdk
+npm install @openclawdsol/dark-protocol-sdk
 # or
-yarn add @dark-protocol/sdk
+yarn add @openclawdsol/dark-protocol-sdk
 # or
-pnpm add @dark-protocol/sdk
+pnpm add @openclawdsol/dark-protocol-sdk
 ```
 
 ### Basic Usage
 
 ```typescript
-import { DarkProtocolClient, DarkWallet } from '@dark-protocol/sdk';
+import { DarkProtocolClient, DarkWallet } from '@openclawdsol/dark-protocol-sdk';
 
 // Initialize client
 const client = await DarkProtocolClient.create({
@@ -99,7 +99,7 @@ const transferTx = await wallet.privateTransfer(
 Main entry point for interacting with Dark Protocol.
 
 ```typescript
-import { DarkProtocolClient } from '@dark-protocol/sdk';
+import { DarkProtocolClient } from '@openclawdsol/dark-protocol-sdk';
 
 const client = await DarkProtocolClient.create({
   heliusApiKey: 'your-api-key',
@@ -119,7 +119,7 @@ client.helius      // Helius SDK
 Manage privacy-preserving wallets.
 
 ```typescript
-import { DarkWallet } from '@dark-protocol/sdk';
+import { DarkWallet } from '@openclawdsol/dark-protocol-sdk';
 
 // Generate new wallet
 const { wallet, mnemonic } = await DarkWallet.generate(client);
@@ -141,7 +141,7 @@ console.log('Transparent Balance:', state.transparentBalance);
 Zcash Sapling hierarchical deterministic wallet.
 
 ```typescript
-import { SaplingHDWallet, SaplingUtils } from '@dark-protocol/sdk';
+import { SaplingHDWallet, SaplingUtils } from '@openclawdsol/dark-protocol-sdk';
 
 // Generate new Sapling wallet
 const { wallet, mnemonic } = await SaplingUtils.generateWallet();
@@ -161,7 +161,7 @@ const addresses = wallet.generateDiversifiedAddresses(10); // Unlimited addresse
 Privacy utilities for commitments, nullifiers, and encryption.
 
 ```typescript
-import { PrivacyUtils } from '@dark-protocol/sdk';
+import { PrivacyUtils } from '@openclawdsol/dark-protocol-sdk';
 
 // Generate privacy primitives
 const commitment = PrivacyUtils.generateCommitment();
@@ -181,7 +181,7 @@ const ephemeralAccount = PrivacyUtils.createEphemeralAccount();
 Private token swaps via Jupiter aggregator.
 
 ```typescript
-import { PrivateSwapManager } from '@dark-protocol/sdk';
+import { PrivateSwapManager } from '@openclawdsol/dark-protocol-sdk';
 
 const swapManager = new PrivateSwapManager(client, jupiterApiKey);
 
@@ -208,7 +208,7 @@ const swapTx = await swapManager.executePrivateSwap({
 Decentralized AI agents with TEE security.
 
 ```typescript
-import { AIAgentManager } from '@dark-protocol/sdk';
+import { AIAgentManager } from '@openclawdsol/dark-protocol-sdk';
 
 const aiManager = new AIAgentManager(client, redpillApiKey);
 
@@ -238,7 +238,7 @@ const analysis = await aiManager.requestAnalysis({
 Zcash-style note encryption with ChaCha20-Poly1305.
 
 ```typescript
-import { NoteEncryptionUtils } from '@dark-protocol/sdk';
+import { NoteEncryptionUtils } from '@openclawdsol/dark-protocol-sdk';
 
 // Create encrypted note
 const encryptedNote = await NoteEncryptionUtils.createEncryptedNote({
@@ -267,7 +267,7 @@ import {
   DarkProtocolClient,
   DarkWallet,
   SaplingHDWallet
-} from '@dark-protocol/sdk';
+} from '@openclawdsol/dark-protocol-sdk';
 
 async function privacyWorkflow() {
   // 1. Initialize client
@@ -324,7 +324,7 @@ async function privacyWorkflow() {
 import {
   DarkProtocolClient,
   PrivateSwapManager
-} from '@dark-protocol/sdk';
+} from '@openclawdsol/dark-protocol-sdk';
 
 async function privateSwap() {
   const client = await DarkProtocolClient.create({
@@ -370,7 +370,7 @@ async function privateSwap() {
 ### Example 3: Generate Multiple Sapling Addresses
 
 ```typescript
-import { SaplingUtils } from '@dark-protocol/sdk';
+import { SaplingUtils } from '@openclawdsol/dark-protocol-sdk';
 
 async function generateAddresses() {
   // Generate wallet
@@ -418,11 +418,14 @@ interface DarkProtocolConfig {
 ### Program IDs
 
 ```typescript
-// Dark Protocol Program
-const DARK_PROTOCOL_PROGRAM_ID = '3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC';
+// Current note pool. Shielded wallet is the same program.
+// Devnet executable account. No mainnet account.
+const DARK_PROTOCOL_PROGRAM_ID = 'E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm';
+const SHIELDED_WALLET_PROGRAM_ID = DARK_PROTOCOL_PROGRAM_ID;
 
-// Shielded Wallet Program
-const SHIELDED_WALLET_PROGRAM_ID = '4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg';
+// Historical devnet ids. Program-id keypairs were published. Do not use.
+// const LEGACY_DARK_PROTOCOL_PROGRAM_ID = '3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC';
+// const LEGACY_SHIELDED_WALLET_PROGRAM_ID = '4753b1cCrPzwr7taWWD8yrcM8dc98fTR7wCFdv1TsAbg';
 ```
 
 ### Network Endpoints
@@ -556,7 +559,7 @@ Apache License 2.0 - see [LICENSE](../../LICENSE) for details.
 
 - **Documentation**: [docs/](../../docs/)
 - **Program Repository**: [../..](../..)
-- **Dark Protocol Devnet**: [Explorer](https://explorer.solana.com/address/3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC?cluster=devnet)
+- **Dark Protocol note pool**: [Orb](https://orbmarkets.io/address/E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm) — devnet executable account as of 13 November 2026. Orb indexes mainnet, so this address has no mainnet account.
 - **Discord**: Coming Soon
 - **Twitter**: Coming Soon
 

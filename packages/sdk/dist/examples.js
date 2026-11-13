@@ -33,7 +33,7 @@ export async function example1_InitializeClient() {
     const client3 = await DarkProtocolClient.create({
         heliusApiKey: process.env.HELIUS_API_KEY || 'your-api-key',
         rpcUrl: 'https://custom-rpc.example.com',
-        programId: new PublicKey('3KWLFYco7T2rUZkzjSSthjHGmbWmo9HAsRmvupDTomGC'),
+        programId: new PublicKey('E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm'),
     });
     console.log('✓ Clients initialized successfully\n');
     return client1;

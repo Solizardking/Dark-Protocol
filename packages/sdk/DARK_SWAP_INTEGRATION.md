@@ -22,7 +22,7 @@ Complete guide for integrating Dark Protocol's privacy features with Jupiverse K
 ### 1. Install Dependencies
 
 ```bash
-npm install @dark-protocol/sdk jupiverse-kit @solana/web3.js
+npm install @openclawdsol/dark-protocol-sdk jupiverse-kit @solana/web3.js
 ```
 
 ### 2. Set Environment Variables
@@ -41,7 +41,7 @@ NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 ### 3. Import and Use
 
 ```tsx
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function SwapPage() {
   return (
@@ -173,7 +173,7 @@ Automatically checks tokens using Jupiter Shield API:
 ### Example 1: Basic Dark Swap
 
 ```tsx
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function BasicSwap() {
   return (
@@ -188,7 +188,7 @@ export default function BasicSwap() {
 ### Example 2: With Custom Callbacks
 
 ```tsx
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 import { toast } from 'react-hot-toast';
 
 export default function SwapWithCallbacks() {
@@ -225,7 +225,7 @@ export default function SwapWithCallbacks() {
 ### Example 3: Conservative Settings
 
 ```tsx
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function ConservativeSwap() {
   return (
@@ -253,7 +253,7 @@ export default function ConservativeSwap() {
 ### Example 4: Full Page with Gradient Background
 
 ```tsx
-import { DarkSwapDemo } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwapDemo } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function SwapPage() {
   return <DarkSwapDemo />;
@@ -269,14 +269,14 @@ export default function SwapPage() {
 ```bash
 npx create-next-app@latest my-dark-swap-app
 cd my-dark-swap-app
-npm install @dark-protocol/sdk jupiverse-kit @solana/web3.js
+npm install @openclawdsol/dark-protocol-sdk jupiverse-kit @solana/web3.js
 ```
 
 ### Step 2: Create Swap Page
 
 ```tsx
 // app/swap/page.tsx
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function SwapPage() {
   return (
@@ -315,7 +315,7 @@ NEXT_PUBLIC_REFERRAL_KEY=your_referral_key
 module.exports = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@dark-protocol/sdk/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@openclawdsol/dark-protocol-sdk/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {},
@@ -394,7 +394,7 @@ Shows active protections:
 
 ```tsx
 import { useState } from 'react';
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 export default function CustomSwap() {
   const [oracleEnabled, setOracleEnabled] = useState(true);
@@ -533,10 +533,10 @@ echo $NEXT_PUBLIC_HELIUS_API_KEY
 **Solution**:
 ```tsx
 // Ensure correct import
-import { DarkSwap } from '@dark-protocol/sdk/components/DarkSwap';
+import { DarkSwap } from '@openclawdsol/dark-protocol-sdk/components/DarkSwap';
 
 // Add to tailwind.config.js content array
-'./node_modules/@dark-protocol/sdk/**/*.{js,ts,jsx,tsx}'
+'./node_modules/@openclawdsol/dark-protocol-sdk/**/*.{js,ts,jsx,tsx}'
 ```
 
 ---

@@ -18,7 +18,7 @@ import {
   SaplingPaymentAddress,
   SaplingHDWallet,
   SaplingUtils
-} from '@dark-protocol/sdk';
+} from '@openclawdsol/dark-protocol-sdk';
 
 // Generate new wallet with mnemonic
 const { wallet, mnemonic } = await SaplingUtils.generateWallet();
@@ -49,7 +49,7 @@ import {
   NoteDecryption,
   SaplingNotePlaintext,
   NoteEncryptionUtils
-} from '@dark-protocol/sdk';
+} from '@openclawdsol/dark-protocol-sdk';
 
 // Create encrypted note for recipient
 const encryptedNote = await NoteEncryptionUtils.createEncryptedNote({
@@ -77,9 +77,9 @@ if (plaintext) {
 ### Installation
 
 ```bash
-npm install @dark-protocol/sdk
+npm install @openclawdsol/dark-protocol-sdk
 # or
-yarn add @dark-protocol/sdk
+yarn add @openclawdsol/dark-protocol-sdk
 ```
 
 ### Basic Usage
@@ -87,7 +87,7 @@ yarn add @dark-protocol/sdk
 #### 1. Create Privacy Wallet
 
 ```typescript
-import { DarkProtocolClient, SaplingHDWallet } from '@dark-protocol/sdk';
+import { DarkProtocolClient, SaplingHDWallet } from '@openclawdsol/dark-protocol-sdk';
 
 // Initialize client
 const client = await DarkProtocolClient.create({
@@ -419,7 +419,7 @@ class NoteEncryptionUtils {
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { SaplingHDWallet, SaplingUtils } from '@dark-protocol/sdk';
+import { SaplingHDWallet, SaplingUtils } from '@openclawdsol/dark-protocol-sdk';
 
 function PrivacyWallet() {
   const [wallet, setWallet] = useState<SaplingHDWallet | null>(null);
@@ -459,7 +459,7 @@ function PrivacyWallet() {
 ### Node.js Backend
 
 ```typescript
-import { DarkProtocolClient, SaplingHDWallet } from '@dark-protocol/sdk';
+import { DarkProtocolClient, SaplingHDWallet } from '@openclawdsol/dark-protocol-sdk';
 
 async function processPrivatePayment() {
   // Initialize
@@ -555,7 +555,7 @@ Works with:
 
 1. **Build Solana Programs**: `cargo build-sbf`
 2. **Deploy to Devnet**: `solana program deploy`
-3. **Integrate SDK**: `npm install @dark-protocol/sdk`
+3. **Integrate SDK**: `npm install @openclawdsol/dark-protocol-sdk`
 4. **Add to Your App**: Import and use!
 
 ## Support

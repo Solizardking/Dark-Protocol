@@ -35,7 +35,7 @@ Complete TypeScript SDK integration for real-time price oracles and Jupiter Ultr
 The oracle module is included in the Dark Protocol SDK:
 
 ```bash
-npm install @dark-protocol/sdk
+npm install @openclawdsol/dark-protocol-sdk
 ```
 
 ---
@@ -59,7 +59,7 @@ export HELIUS_RPC_URL="https://mainnet.helius-rpc.com/?api-key=YOUR_KEY"
 ### 2. Initialize Client
 
 ```typescript
-import { DarkProtocolClient, PrivateSwapManager, PriceOracle } from '@dark-protocol/sdk';
+import { DarkProtocolClient, PrivateSwapManager, PriceOracle } from '@openclawdsol/dark-protocol-sdk';
 
 // Create client
 const client = await DarkProtocolClient.create({
@@ -85,7 +85,7 @@ const oracle = swapManager.getOracle();
 ### Get Real-Time Token Price
 
 ```typescript
-import { KNOWN_TOKENS, formatPrice } from '@dark-protocol/sdk';
+import { KNOWN_TOKENS, formatPrice } from '@openclawdsol/dark-protocol-sdk';
 
 // Get SOL price
 const price = await oracle.getPrice(KNOWN_TOKENS.SOL);
@@ -348,7 +348,7 @@ interface SwapQuoteWithOracle extends JupiterSwapRoute {
 ## Known Token Addresses
 
 ```typescript
-import { KNOWN_TOKENS } from '@dark-protocol/sdk';
+import { KNOWN_TOKENS } from '@openclawdsol/dark-protocol-sdk';
 
 KNOWN_TOKENS.SOL   // So11111111111111111111111111111111111111112
 KNOWN_TOKENS.USDC  // EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
