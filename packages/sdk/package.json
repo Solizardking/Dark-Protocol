@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc && rollup -c",
     "dev": "tsc --watch",
-    "test": "jest",
+    "test": "node --test test/smoke.test.mjs",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write 'src/**/*.ts'"
   },
