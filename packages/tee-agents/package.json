@@ -21,7 +21,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "demo": "node dist/demo.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "npm run build && node --test test/attestation.test.mjs"
   },
   "keywords": [
     "solana",

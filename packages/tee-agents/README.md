@@ -135,7 +135,14 @@ Alpha. The `local-dev` TEE provider produces a **self-rooted** quote suitable
 for development and tests only — it proves key custody and identity binding, not
 hardware isolation. For production, supply hardware-rooted quotes (SGX DCAP /
 SEV-SNP / dstack) via `importHardwareQuote` and verify them against the
-provider's attestation/PCS out of band before trusting an enclave. Never commit
+provider's attestation/PCS out of band before trusting an enclave.
+
+Hardware quotes carry the hardware launch measurement (MRENCLAVE / MRTD / SNP
+measurement) plus an `evidenceDigest` (SHA-256 of the raw evidence) that is part
+of the signed report; the enclave signs `hardwareReportBytes(...)`.
+`verifyTeeQuote` fails closed on them unless you pass `allowedMeasurements`
+containing that measurement (and you can pass `rawQuote` to re-check the
+digest). A software quote labelled with a hardware provider is rejected. Never commit
 keypairs or API keys; load them from the environment.
 
 ## License
