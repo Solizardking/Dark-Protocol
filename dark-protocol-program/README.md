@@ -121,7 +121,7 @@ The event publishes `amount`.
 
 ### `withdraw`
 
-Mark a note spent, record a nullifier PDA, and send `amount` lamports from the vault to `recipient`.
+Mark a note spent, record a nullifier PDA, and send `amount` lamports from the vault to `recipient`. Only the note's `owner` can do this.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -131,13 +131,14 @@ Mark a note spent, record a nullifier PDA, and send `amount` lamports from the v
 ```typescript
 await program.methods
   .withdraw(nullifier, amount)
-  .accounts({ protocolState, shieldedNote, nullifierRecord, poolVault, recipient, systemProgram })
+  .accounts({ protocolState, shieldedNote, nullifierRecord, poolVault, owner, recipient, systemProgram })
+  .signers([owner])
   .rpc();
 ```
 
 Emits: `NoteWithdrawn { nullifier, amount, slot }`
 
-`recipient` is the signer who pays to create the nullifier account and who receives the SOL. The program does not require `recipient` to be the depositor, and it does not require knowledge of a spending key.
+`owner` must sign and must equal the note's stored `owner`, or the instruction fails with `NotNoteOwner`. The owner pays for the nullifier account. `recipient` receives the SOL. It can be any system account and does not sign.
 
 ---
 
@@ -149,13 +150,24 @@ Mark one input note spent and create two output notes. SOL stays in the vault. `
 | --- | --- | --- |
 | `input_nullifier` | `[u8; 32]` | Stored on a new nullifier PDA. Not checked against the note. |
 | `output_commitment_1/2` | `[u8; 32]` | Seeds for the two new note PDAs. |
-| `enc_ciphertext_1/2` | `[u8; 580]` | Stored ciphertexts. |
-| `out_ciphertext_1/2` | `[u8; 80]` | Stored out-ciphertexts. |
-| `ephemeral_key_1/2` | `[u8; 32]` | Stored ephemeral keys. |
 | `amount_1` | `u64` | Payment amount, stored in the clear on output note 1 and in the event. |
 | `amount_2` | `u64` | Change amount, stored in the clear on output note 2 and in the event. |
+| `owner_1/2` | `Pubkey` | Spend authority recorded on each output note. |
 
-`sender` is a signer and is written into both output notes as `depositor`. The program does not check that `sender` owns the input note.
+`sender` must sign and must equal the input note's `owner` (`NotNoteOwner` otherwise). Output notes start with zeroed ciphertexts. Two 580-byte ciphertexts can't fit in one 1232-byte transaction, so the sender attaches each one afterwards with `post_ciphertext`.
+
+---
+
+### `post_ciphertext`
+
+Write `enc_ciphertext` (580), `out_ciphertext` (80) and `ephemeral_key` (32) onto a note created by `shielded_transfer`. Only the note's `ciphertext_authority` (the transfer's `sender`) may call it, and only once (`CiphertextAlreadyPosted`). Deposits store their ciphertext inline, so they are already marked as posted.
+
+```typescript
+await program.methods
+  .postCiphertext(encCiphertext, outCiphertext, ephemeralKey)
+  .accounts({ note, authority: sender })
+  .rpc();
+```
 
 Emits: `NoteTransferred { input_nullifier, output_commitment_1, output_commitment_2, amount_1, amount_2 }`
 
@@ -172,7 +184,7 @@ ProtocolState PDA  ["protocol"]                          50 bytes
 ├── bump:        u8                                       1
 └── vault_bump:  u8                                       1
 
-ShieldedNote PDA  ["note", commitment]                  790 bytes
+ShieldedNote PDA  ["note", commitment]                  823 bytes
 ├── commitment:    [u8; 32]                              32
 ├── enc_ciphertext [u8; 580]                             580
 ├── out_ciphertext [u8; 80]                               80
@@ -181,8 +193,10 @@ ShieldedNote PDA  ["note", commitment]                  790 bytes
 ├── spent:         bool                                   1   public
 ├── note_index:    u64                                    8
 ├── slot:          u64                                    8
-├── depositor:     Pubkey                                32   public
-└── bump:          u8                                     1
+├── owner:         Pubkey                                32   public (spend authority)
+├── bump:          u8                                     1
+├── ciphertext_authority: Pubkey                         32   public
+└── ciphertext_posted:    bool                            1
 
 NullifierRecord PDA  ["nullifier", nullifier]            49 bytes
 ├── nullifier: [u8; 32]                                  32
@@ -193,7 +207,7 @@ Pool Vault PDA  ["pool_vault", protocol_state]
 └── Native SOL account (no data)
 ```
 
-`ShieldedNote::LEN` includes the 8-byte Anchor discriminator, so the allocated account is 790 bytes. `ProtocolState::LEN` and `NullifierRecord::LEN` include that discriminator as well (50 and 49).
+`ShieldedNote::LEN` includes the 8-byte Anchor discriminator, so the allocated account is 823 bytes. `ProtocolState::LEN` and `NullifierRecord::LEN` include that discriminator as well (50 and 49).
 
 ### Note Lifecycle
 
@@ -226,7 +240,7 @@ The program copies `enc_ciphertext`, `out_ciphertext`, and `ephemeral_key` onto 
 These values are public on the account and in events:
 
 - `amount`
-- `depositor` (the signer of `deposit` or `shielded_transfer`)
+- `owner` (the depositor, or the owner named for a `shielded_transfer` output) and `ciphertext_authority`
 - `spent`, `note_index`, `slot`
 - the commitment and the nullifier bytes once they are submitted
 
