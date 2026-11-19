@@ -1,0 +1,14 @@
+{
+  "name": "dark-protocol-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static pages served at protocol.darkx402.com by the dark-protocol-page Cloudflare Worker",
+  "type": "module",
+  "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test test/site.test.mjs",
+    "check": "npm run lint && npm test",
+    "og": "echo 'Render og-src/solana-foundation.html at 1200x630 to public/og/solana-foundation.png (see README.md)'"
+  },
+  "engines": { "node": ">=20" }
+}

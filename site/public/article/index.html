@@ -54,6 +54,14 @@
   footer{border-top:1px solid var(--line);padding:34px 0 54px;color:var(--muted);font-size:13.5px;margin-top:38px}
   footer .row{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
   .fineprint{margin-top:14px;font-size:12.5px;color:#5f6b7f}
+  /* nav links */
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px}
+  .navlinks a{color:var(--muted)}
+  .navlinks a:hover{color:var(--green);text-decoration:none}
+  .navlinks a.on{color:var(--text)}
+  .navlinks a.sf{color:var(--green);font-weight:600}
+  .wrap.nav{padding-left:22px;padding-right:22px}
+  @media (max-width:640px){.nav{flex-direction:column;align-items:flex-start;gap:8px}.navlinks{gap:4px 14px}}
 </style>
 </head>
 <body>
@@ -61,7 +69,7 @@
 <header>
   <div class="wrap nav">
     <div class="brand"><span class="dot"></span>DARK&nbsp;PROTOCOL <small>· BY DARKX402</small></div>
-    <div class="mono">solana · zero-knowledge · formally verified</div>
+    <nav class="navlinks" aria-label="Site"><a href="/dark-protocol">Protocol</a><a href="/dark-protocol/article" class="on" aria-current="page">The story</a><a href="/dark-protocol/solana-foundation" class="sf">@solanafdn ask</a></nav>
   </div>
 </header>
 

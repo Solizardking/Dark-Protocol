@@ -23,6 +23,21 @@ jobs:
         with:
           config: .gitleaks.toml
 
+  # ─── protocol.darkx402.com static site ───────────────────────────────────────
+  site:
+    name: Site — lint & test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Lint and test
+        run: npm run check
+
   # ─── SDK build + type-check ──────────────────────────────────────────────────
   sdk:
     name: SDK — build & type-check

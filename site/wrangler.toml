@@ -1,0 +1,15 @@
+# Worker that serves protocol.darkx402.com (custom domain) and the
+# darkx402.com/dark-protocol* route. Both bindings already exist on the
+# Cloudflare account and are intentionally NOT declared here, so a deploy
+# from this file never adds, moves, or removes a route or DNS record.
+# Deploying is a manual step and needs an explicit go-ahead (see README.md).
+name = "dark-protocol-page"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+html_handling = "none"
+not_found_handling = "none"
+run_worker_first = true

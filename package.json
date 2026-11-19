@@ -21,7 +21,9 @@
     "clawd:demo": "npm run build:tee && node packages/tee-agents/dist/clawd-demo.js",
     "install:dark": "bash scripts/install-dark.sh",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
-    "publish:all": "npm run build && npm publish --workspaces --access public"
+    "publish:all": "npm run build && npm publish --workspaces --access public",
+    "site:check": "npm --prefix site run check",
+    "site:preview": "node site/scripts/serve.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

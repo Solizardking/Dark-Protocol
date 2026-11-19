@@ -81,6 +81,14 @@
   footer{border-top:1px solid var(--line);padding:34px 0 54px;color:var(--muted);font-size:13.5px}
   footer .row{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
   .fineprint{margin-top:14px;font-size:12.5px;color:#5f6b7f}
+  /* nav links */
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px}
+  .navlinks a{color:var(--muted)}
+  .navlinks a:hover{color:var(--green);text-decoration:none}
+  .navlinks a.on{color:var(--text)}
+  .navlinks a.sf{color:var(--green);font-weight:600}
+  .wrap.nav{padding-left:22px;padding-right:22px}
+  @media (max-width:640px){.nav{flex-direction:column;align-items:flex-start;gap:8px}.navlinks{gap:4px 14px}}
 </style>
 </head>
 <body>
@@ -88,7 +96,7 @@
 <header>
   <div class="wrap nav">
     <div class="brand"><span class="dot"></span>DARK&nbsp;PROTOCOL <small>· BY DARKX402</small></div>
-    <div class="mono">solana · zero-knowledge · formally verified</div>
+    <nav class="navlinks" aria-label="Site"><a href="/dark-protocol" class="on" aria-current="page">Protocol</a><a href="/dark-protocol/article">The story</a><a href="/dark-protocol/solana-foundation" class="sf">@solanafdn ask</a></nav>
   </div>
 </header>
 
@@ -113,6 +121,16 @@
       <h3 style="font-size:21px;line-height:1.3;margin-bottom:8px"><a href="/dark-protocol/article" style="color:var(--text)">Dark Protocol: A Year of Building Private Solana — and the Proof We Ran Out of Fuel to Finish</a></h3>
       <p style="margin-bottom:12px">How we built it, how we tried to break it, and the formal verification we're seeking sponsorship to finish.</p>
       <a href="/dark-protocol/article" style="font-weight:600">Read the article →</a>
+    </div>
+  </section>
+
+  <!-- SOLANA FOUNDATION ASK -->
+  <section style="border-top:none;padding-top:0">
+    <div class="card" style="border-left:3px solid var(--purple);background:linear-gradient(90deg,rgba(153,69,255,.10),transparent 65%)">
+      <div style="font-size:11px;letter-spacing:.24em;color:var(--purple);text-transform:uppercase;margin-bottom:8px">Open request · @solanafdn</div>
+      <h3 style="font-size:21px;line-height:1.3;margin-bottom:8px"><a href="/dark-protocol/solana-foundation" style="color:var(--text)">Help us formally verify private Solana</a></h3>
+      <p style="margin-bottom:12px">We're asking the Solana Foundation for formal-verification credits for our privacy pool, ZK circuit, and TEE-gated confidential compute. Every result will be published openly. Also: we're integrating Helius Privacy Rings and Crossmint.</p>
+      <a href="/dark-protocol/solana-foundation" style="font-weight:600">Read the request →</a>
     </div>
   </section>
 
