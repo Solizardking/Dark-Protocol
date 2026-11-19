@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Protocol — Private transfers on Solana, with the math checked</title>
+<meta name="description" content="Dark Protocol is a privacy pool for Solana. This page explains, in plain language, how the code is being formally verified — proving the pool's rules hold for every possible action, not just the ones we tested.">
+<style>
+  :root{
+    --bg:#05060a; --bg2:#0a0c14; --card:#0d1019; --line:#1c2130;
+    --text:#e8eaf2; --muted:#9aa3b8; --faint:#6b7390;
+    --purple:#9945FF; --green:#14F195; --amber:#ffb454; --red:#ff6b7a;
+    --grad:linear-gradient(92deg,#9945FF 0%,#14F195 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+  a{color:var(--green);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);background:rgba(5,6,10,.85);position:sticky;top:0;backdrop-filter:blur(8px);z-index:10}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em}
+  .brand .dot{width:11px;height:11px;border-radius:3px;background:var(--grad)}
+  .brand small{color:var(--muted);font-weight:500;letter-spacing:.08em}
+  .nav .mono{font-size:12px;color:var(--muted)}
+
+  /* hero */
+  .hero{padding:72px 0 46px;text-align:left}
+  .kicker{font-size:12px;letter-spacing:.28em;color:var(--green);text-transform:uppercase;margin-bottom:18px}
+  h1{font-size:clamp(34px,6vw,54px);line-height:1.12;font-weight:800;letter-spacing:-.01em}
+  h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{margin-top:20px;font-size:19px;color:var(--muted);max-width:640px}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:13px}
+  .pill .s{width:8px;height:8px;border-radius:50%}
+  .s-green{background:var(--green)} .s-amber{background:var(--amber)} .s-grey{background:#5a6480}
+  .s-amber{box-shadow:0 0 0 0 rgba(255,180,84,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,180,84,.45)}70%{box-shadow:0 0 0 8px rgba(255,180,84,0)}100%{box-shadow:0 0 0 0 rgba(255,180,84,0)}}
+
+  /* sections */
+  section{padding:38px 0;border-top:1px solid var(--line)}
+  h2{font-size:26px;font-weight:750;letter-spacing:-.01em;margin-bottom:8px}
+  h2 .num{color:var(--purple);font-family:ui-monospace,Menlo,monospace;font-size:18px;margin-right:10px}
+  .sub{color:var(--muted);margin-bottom:22px;max-width:680px}
+  p{margin-bottom:14px;color:#cdd3e2}
+  p strong, li strong{color:var(--text)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;margin-bottom:6px}
+  .card p{margin-bottom:0;color:var(--muted);font-size:15px}
+  .analogy{border-left:3px solid var(--purple);background:linear-gradient(90deg,rgba(153,69,255,.08),transparent 65%)}
+  .analogy p{color:#cdd3e2}
+
+  /* promise list */
+  .promise{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:12px}
+  .promise .n{flex:0 0 34px;height:34px;border-radius:10px;background:var(--grad);color:#05060a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .promise h3{font-size:16.5px;margin-bottom:3px}
+  .promise p{color:var(--muted);font-size:14.5px;margin:0}
+
+  /* ladder */
+  .step{display:flex;gap:16px;padding:16px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .tag{flex:0 0 92px}
+  .tag span{display:inline-block;font-size:11px;letter-spacing:.12em;padding:4px 9px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+  .tag .done{color:var(--green);border-color:rgba(20,241,149,.4)}
+  .tag .live{color:var(--amber);border-color:rgba(255,180,84,.45)}
+  .step h3{font-size:16px;margin-bottom:2px}
+  .step p{color:var(--muted);font-size:14.5px;margin:0}
+
+  .honest{background:rgba(255,180,84,.05);border:1px solid rgba(255,180,84,.28);border-radius:14px;padding:22px 24px}
+  .honest h3{color:var(--amber);font-size:16px;margin-bottom:10px}
+  .honest li{color:#cdd3e2;font-size:15px;margin-bottom:8px;margin-left:18px}
+
+  .faq h3{font-size:16px;margin:18px 0 4px}
+  .faq p{color:var(--muted);font-size:15px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 54px;color:var(--muted);font-size:13.5px}
+  footer .row{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+  .fineprint{margin-top:14px;font-size:12.5px;color:#5f6b7f}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span>DARK&nbsp;PROTOCOL <small>· BY DARKX402</small></div>
+    <div class="mono">solana · zero-knowledge · formally verified</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kicker">Privacy pool for Solana</div>
+    <h1>Send privately.<br><span class="grad">Prove it can't be cheated.</span></h1>
+    <p class="lede">Dark Protocol lets you deposit SOL into a shared pool and withdraw it to a fresh wallet — with no public link between the two. And because a privacy pool is only worth using if its rules can't be bent, we're having the code <strong style="color:var(--text)">formally verified</strong>: machine-checked proof that the rules hold for <em>every</em> possible action, not just the ones we thought to test.</p>
+    <div class="pills">
+      <span class="pill"><span class="s s-green"></span>Live on Solana <strong>devnet</strong> (test network)</span>
+      <span class="pill"><span class="s s-amber"></span>Formal verification — <strong>in progress</strong></span>
+      <span class="pill"><span class="s s-grey"></span>Mainnet — <strong>not launched yet</strong></span>
+    </div>
+  </div>
+
+  <!-- ARTICLE CARD -->
+  <section style="border-top:none;padding-top:6px">
+    <div class="card" style="border-left:3px solid var(--green);background:linear-gradient(90deg,rgba(20,241,149,.06),transparent 65%)">
+      <div style="font-size:11px;letter-spacing:.24em;color:var(--green);text-transform:uppercase;margin-bottom:8px">New · The full story</div>
+      <h3 style="font-size:21px;line-height:1.3;margin-bottom:8px"><a href="/dark-protocol/article" style="color:var(--text)">Dark Protocol: A Year of Building Private Solana — and the Proof We Ran Out of Fuel to Finish</a></h3>
+      <p style="margin-bottom:12px">How we built it, how we tried to break it, and the formal verification we're seeking sponsorship to finish.</p>
+      <a href="/dark-protocol/article" style="font-weight:600">Read the article →</a>
+    </div>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section>
+    <h2><span class="num">01</span>What is Dark Protocol?</h2>
+    <p class="sub">On a public blockchain, every payment leaves a trail anyone can follow. Dark Protocol breaks the trail — without asking you to trust the people running it.</p>
+    <div class="card analogy">
+      <h3>Think of a cloakroom</h3>
+      <p>You hand over your coat and get a ticket. Later, anyone holding a valid ticket can claim a coat — but nobody watching can tell which coat belonged to which person, because the tickets don't name anyone. Dark Protocol is a cloakroom for SOL: your deposit is the coat, a cryptographic <strong>note</strong> only you hold is the ticket, and a piece of mathematics called a <strong>zero-knowledge proof</strong> is how you show "I have a valid ticket" without revealing which deposit was yours.</p>
+    </div>
+    <div class="card">
+      <h3>The catch with every cloakroom</h3>
+      <p>It only works if the cloakroom itself can't cheat: it must never hand out more coats than were checked in, never let someone claim with a forged ticket, never let the same ticket be spent twice, and never let the staff walk off with the coats. In Dark Protocol there's no staff and no office — there's only code, running on Solana, that anyone can read. So the real question is: <strong>how do we know the code actually enforces those rules?</strong> That's what the rest of this page is about.</p>
+    </div>
+  </section>
+
+  <!-- TESTING VS PROVING -->
+  <section>
+    <h2><span class="num">02</span>Testing checks examples. Proof checks everything.</h2>
+    <p class="sub">Most software is tested: you try a few thousand scenarios and check the right thing happens. That catches a lot — but an attacker only needs the <em>one</em> scenario nobody tried.</p>
+    <p><strong>Formal verification</strong> is different. A specialised system reads the actual program code and tries to <em>prove</em>, mathematically, that a rule holds for <strong>every possible sequence of actions, in any order, with any amounts</strong> — the way you'd prove a theorem about all numbers, not just the ones you tested. If it can't prove a rule, it doesn't shrug: it produces a <strong>concrete counterexample</strong> — an exact recipe of steps that breaks the rule — so the bug can be fixed and the proof run again.</p>
+    <p>On <strong>November 18, 2026</strong>, we submitted the Dark Protocol program to <strong>Aristotle</strong>, a formal-verification system built by <strong>Harmonic</strong>, under a project named <span class="mono">dark-protocol-pilot</span>. The run is in progress now. When it finishes, we will publish the results on this page <strong>either way</strong> — proved, or refuted with the counterexample.</p>
+  </section>
+
+  <!-- THE SIX PROMISES -->
+  <section>
+    <h2><span class="num">03</span>The six promises we asked it to prove</h2>
+    <p class="sub">These are the exact properties in the submitted specification, translated into plain language. In cloakroom terms first, then in real terms.</p>
+
+    <div class="promise"><div class="n">1</div><div>
+      <h3>Money is conserved</h3>
+      <p>The pool can never pay out more than was put in. Every lamport is accounted for: the total paid out never exceeds the total deposited, no matter what sequence of deposits and withdrawals anyone tries — and sending money <em>to</em> the pool as a "donation" can't inflate what it owes.</p>
+    </div></div>
+
+    <div class="promise"><div class="n">2</div><div>
+      <h3>No withdrawal without a valid ticket</h3>
+      <p>Funds move only after the program has checked, in order: the amount is real, the deposit history being claimed against is genuine, the pool can afford it, and the zero-knowledge proof verifies. A failed check cancels the whole withdrawal — including the "ticket used" stamp, so an honest user never loses their note to a rejected attempt.</p>
+    </div></div>
+
+    <div class="promise"><div class="n">3</div><div>
+      <h3>The amount is sealed to the note</h3>
+      <p>When you deposit, the amount is cryptographically sealed into your note by the program itself — it can't be edited afterwards. This kills the classic drain: deposit a speck, then claim the note says a fortune. We already watched that attack fail live on the test network; this property asks for the proof that it can <em>never</em> work.</p>
+    </div></div>
+
+    <div class="promise"><div class="n">4</div><div>
+      <h3>There is no backdoor — not even for us</h3>
+      <p>The program records who deployed it, but that identity authorises nothing. The only way money ever leaves the pool is the proof-checked withdrawal path. No admin key, no operator override, no "emergency" shortcut.</p>
+    </div></div>
+
+    <div class="promise"><div class="n">5</div><div>
+      <h3>Honest withdrawals always work</h3>
+      <p>Security that locks everyone out is just a different failure. If your proof is valid, your note is unspent, and the pool holds your money, your withdrawal goes through — and if a withdrawal ever fails, the failure has a specific named reason, never a mystery. This is the property that turns "it worked in our rehearsal" into "it must work, under these stated conditions."</p>
+    </div></div>
+
+    <div class="promise"><div class="n">6</div><div>
+      <h3>The pool's memory can't be rewritten</h3>
+      <p>The pool keeps a rolling record of every deposit. That record is append-only: entries are produced by the program itself, old entries age out only after exactly 32 newer ones, and the record's summary always matches a from-scratch recount of every deposit ever made.</p>
+    </div></div>
+
+    <p style="color:var(--muted);font-size:14.5px">Plus a zeroth promise underneath all of them: on any valid input, the program never crashes or misbehaves arithmetically — no overflows, no panics, checked maths only.</p>
+  </section>
+
+  <!-- HOW WE GOT HERE -->
+  <section>
+    <h2><span class="num">04</span>How we got here</h2>
+    <p class="sub">Formal verification is the newest layer, not the only one. Dark Protocol was built the slow way:</p>
+
+    <div class="step"><div class="tag"><span class="done">DONE</span></div><div>
+      <h3>Independent audit — 39 findings</h3>
+      <p>A full audit of the original code found 39 problems, including critical ones: checks that were faked, proofs that weren't really checked. We published the findings and ordered a rewrite instead of patching over them.</p>
+    </div></div>
+
+    <div class="step"><div class="tag"><span class="done">DONE</span></div><div>
+      <h3>Rewrite, then a hostile re-audit</h3>
+      <p>The rewritten program was audited again — and the re-audit caught one more critical flaw (a deposit could be unbound from its amount: the drain in promise 3). It was fixed, and the fix is now the thing being formally proved.</p>
+    </div></div>
+
+    <div class="step"><div class="tag"><span class="done">DONE</span></div><div>
+      <h3>Full dress rehearsal on the test network</h3>
+      <p>Deposits, withdrawals, a withdrawal through a relayer, a replay attack (spending the same note twice — rejected), a tampered amount (rejected), and the 1-lamport drain attempt (failed, as designed). Every result matched the ledger to the lamport.</p>
+    </div></div>
+
+    <div class="step"><div class="tag"><span class="live">IN PROGRESS</span></div><div>
+      <h3>Formal verification — Aristotle pilot</h3>
+      <p>The six promises above, submitted November 18, 2026. Results will be posted here when the run completes, including anything it refutes.</p>
+    </div></div>
+
+    <div class="step"><div class="tag"><span class="live">IN PROGRESS</span></div><div>
+      <h3>The setup ceremony</h3>
+      <p>The privacy proofs rely on a one-time setup that must be generated in public, by several independent people each adding their own secret randomness. The mathematics guarantees the setup is sound if even <em>one</em> participant was honest and destroyed their secret. Our ceremony uses the public Hermez setup (54 contributors) plus five contributors of our own and a public randomness beacon. Details and the contributor list will be published with the transcript.</p>
+    </div></div>
+  </section>
+
+  <!-- HONEST LIMITS -->
+  <section>
+    <h2><span class="num">05</span>What verification does <em>not</em> do</h2>
+    <div class="honest">
+      <h3>Honest limits, on purpose</h3>
+      <ul>
+        <li><strong>It's not finished.</strong> The run is in progress. Until results are published here, "formally verified" describes the process we've started — not a result we've received.</li>
+        <li><strong>It verifies the program, not the privacy circuit.</strong> The zero-knowledge circuit's soundness rests on the setup ceremony (above) and the audit trail — a different layer, checked a different way.</li>
+        <li><strong>Two steps are taken on stated assumptions.</strong> The specification says openly that the proof treats the pool's hashing and the proof-checker itself as trusted building blocks, and says exactly where. If the verifier can only prove a promise <em>under</em> those assumptions, the result will say so — that's a feature, not fine print.</li>
+        <li><strong>It says nothing about speed or cost.</strong> A separate failure class — operations too expensive to fit in a transaction — is handled by measurement and rehearsal, not proof. (It bit us once, on the test network, and the fix is part of why the rehearsal mattered.)</li>
+        <li><strong>This is still a test-network system.</strong> Dark Protocol runs on Solana devnet. Mainnet comes only after the ceremony and the verification results are in — and that decision will be announced, not slipped in.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2><span class="num">06</span>Questions</h2>
+    <h3>What happens if the verifier finds a bug?</h3>
+    <p>Then it did its job. A refuted promise comes back with a concrete counterexample — an exact sequence of steps that breaks the rule. We fix the code, and the fixed version gets proved again. Finding the bug in a proof is infinitely cheaper than finding it in production.</p>
+    <h3>Who is Harmonic, and what is Aristotle?</h3>
+    <p>Harmonic is the company behind Aristotle, an automated theorem-proving system that translates Rust programs into mathematical models and proves (or refutes) stated properties about them. In its published Solana case study, it produced 28 proved results on a production order-book program — and found two real bugs, which were fixed. That's the standard we're holding Dark Protocol to.</p>
+    <h3>Did you have to hand over the code?</h3>
+    <p>Yes — verification means the verifier reads the real program, all of it, exactly as deployed on the test network. The submitted bundle contained only the program source and the specification: no keys, no credentials, nothing that could move funds.</p>
+    <h3>When will results be published?</h3>
+    <p>When the run completes — these proofs take minutes to days. This page will be updated with the per-promise outcomes and the verifier's own statement of what it did and didn't cover.</p>
+  </section>
+
+  <footer>
+    <div class="row">
+      <div><strong style="color:var(--text)">DARK PROTOCOL</strong> · a Dark DeFi project · darkx402.com</div>
+      <div class="mono">program (devnet): 2GmpuVGfFVfhiqUWrrhkkWBk3i8TpbTuqyiZNXETA5kL</div>
+    </div>
+    <p class="fineprint">Status as of November 18, 2026: live on Solana devnet for testing; formal verification in progress (Aristotle project “dark-protocol-pilot”); mainnet not launched. Nothing on this page is financial advice, and a system being verified is not a guarantee — it is evidence, published so you can weigh it yourself.</p>
+  </footer>
+
+</div>
+</body>
+</html>

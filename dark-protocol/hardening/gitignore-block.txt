@@ -1,0 +1,15 @@
+# ── Secret key material — never commit (Dark DeFi hardening, 2026-11-16) ──
+# Solana / Ed25519 keypair files (bare 64-byte JSON arrays) and seeds.
+# Pair with hardening/secret-scan.py as a pre-commit / CI gate.
+fixtures/keys/*.json
+!fixtures/keys/README.md
+**/keypair.json
+**/*-keypair.json
+**/*-keypair*.json
+**/id.json
+# Environment files (templates stay tracked)
+.env
+.env.*
+!.env.example
+# PEM private keys
+*.pem
