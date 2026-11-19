@@ -64,7 +64,13 @@ export declare class DarkProtocolClient {
         spent: boolean;
         noteIndex: bigint;
         slot: bigint;
+        /** Spend authority: the only key that may withdraw or transfer the note. */
+        owner: PublicKey;
+        /** @deprecated use `owner` (same value). */
         depositor: PublicKey;
+        /** Who may attach the ciphertext to a transfer output. */
+        ciphertextAuthority: PublicKey;
+        ciphertextPosted: boolean;
     } | null>;
     /**
      * Check whether a nullifier has been spent on-chain.

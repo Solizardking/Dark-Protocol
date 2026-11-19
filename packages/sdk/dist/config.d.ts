@@ -13,7 +13,10 @@ export declare const PROGRAM_IDS: {
     DARK_PROTOCOL: PublicKey;
     /** Alias for the shielded wallet program (same contract) */
     SHIELDED_WALLET: PublicKey;
-    /** MAINNET placeholder — replace after `solana program deploy` on mainnet */
+    /**
+     * Not a separate mainnet deployment. No mainnet account exists for this id.
+     * Do not send mainnet SOL to the note pool.
+     */
     DARK_PROTOCOL_MAINNET: PublicKey;
 };
 /**

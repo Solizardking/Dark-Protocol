@@ -227,6 +227,80 @@
       ]
     },
     {
+      "name": "post_ciphertext",
+      "docs": [
+        "Attach the encrypted note payload to an output of `shielded_transfer`.",
+        "Only that transfer's sender may post, and only once per note."
+      ],
+      "discriminator": [
+        38,
+        87,
+        11,
+        41,
+        242,
+        4,
+        171,
+        245
+      ],
+      "accounts": [
+        {
+          "name": "note",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  111,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "note.commitment",
+                "account": "ShieldedNote"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "enc_ciphertext",
+          "type": {
+            "array": [
+              "u8",
+              580
+            ]
+          }
+        },
+        {
+          "name": "out_ciphertext",
+          "type": {
+            "array": [
+              "u8",
+              80
+            ]
+          }
+        },
+        {
+          "name": "ephemeral_key",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "shielded_transfer",
       "docs": [
         "Spend one input note and create two output notes (payment + change).",
@@ -393,73 +467,28 @@
           }
         },
         {
-          "name": "enc_ciphertext_1",
-          "type": {
-            "array": [
-              "u8",
-              580
-            ]
-          }
-        },
-        {
-          "name": "enc_ciphertext_2",
-          "type": {
-            "array": [
-              "u8",
-              580
-            ]
-          }
-        },
-        {
-          "name": "out_ciphertext_1",
-          "type": {
-            "array": [
-              "u8",
-              80
-            ]
-          }
-        },
-        {
-          "name": "out_ciphertext_2",
-          "type": {
-            "array": [
-              "u8",
-              80
-            ]
-          }
-        },
-        {
-          "name": "ephemeral_key_1",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          }
-        },
-        {
-          "name": "ephemeral_key_2",
-          "type": {
-            "array": [
-              "u8",
-              32
-            ]
-          }
-        },
-        {
           "name": "amount_1",
           "type": "u64"
         },
         {
           "name": "amount_2",
           "type": "u64"
+        },
+        {
+          "name": "owner_1",
+          "type": "pubkey"
+        },
+        {
+          "name": "owner_2",
+          "type": "pubkey"
         }
       ]
     },
     {
       "name": "withdraw",
       "docs": [
-        "Withdraw SOL by presenting a nullifier that proves note ownership."
+        "Withdraw SOL from a note. Only the note's `owner` may sign; the SOL can",
+        "go to any `recipient` account."
       ],
       "discriminator": [
         183,
@@ -569,9 +598,19 @@
           }
         },
         {
-          "name": "recipient",
+          "name": "owner",
+          "docs": [
+            "The note's spend authority. Must sign and pays for the nullifier record."
+          ],
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "recipient",
+          "docs": [
+            "Receives the withdrawn SOL. Any system account; does not need to sign."
+          ],
+          "writable": true
         },
         {
           "name": "system_program",
@@ -710,6 +749,21 @@
       "code": 6003,
       "name": "NoteOverflow",
       "msg": "Note count overflow"
+    },
+    {
+      "code": 6004,
+      "name": "NotNoteOwner",
+      "msg": "Signer is not the owner of this note"
+    },
+    {
+      "code": 6005,
+      "name": "CiphertextAlreadyPosted",
+      "msg": "Note ciphertext has already been posted"
+    },
+    {
+      "code": 6006,
+      "name": "NotCiphertextAuthority",
+      "msg": "Signer may not post this note's ciphertext"
     }
   ],
   "types": [
@@ -929,12 +983,29 @@
             "type": "u64"
           },
           {
-            "name": "depositor",
+            "name": "owner",
+            "docs": [
+              "Spend authority: the only key that may withdraw or transfer this note."
+            ],
             "type": "pubkey"
           },
           {
             "name": "bump",
             "type": "u8"
+          },
+          {
+            "name": "ciphertext_authority",
+            "docs": [
+              "Who may attach the ciphertext (the depositor, or the transfer sender)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "ciphertext_posted",
+            "docs": [
+              "Whether enc/out ciphertext and ephemeral key have been written."
+            ],
+            "type": "bool"
           }
         ]
       }

@@ -198,16 +198,24 @@ deposit(amount, commitment, enc_ct, out_ct, eph_key)
         │
         ▼
    Pool vault PDA holds the SOL
-   ShieldedNote PDA stores the ciphertext AND the amount AND the depositor
+   ShieldedNote PDA stores the ciphertext AND the amount AND the owner
         │
-        ├── withdraw(nullifier, amount) → SOL to the signer
-        └── shielded_transfer(...)      → two new notes, SOL stays in the vault
+        ├── withdraw(nullifier, amount)  → owner signs, SOL to any recipient
+        ├── shielded_transfer(...)       → owner signs, two new notes with named owners
+        └── post_ciphertext(...)         → sender attaches each output's ciphertext
 ```
 
-`initialize`, `deposit`, `withdraw`, and `shielded_transfer` are the whole
-instruction set. Commitments are 32 client-supplied bytes. The program does
-not open them. Nullifiers are stored so the same 32 bytes cannot be reused.
-They are not checked against a spending key.
+`initialize`, `deposit`, `withdraw`, `shielded_transfer`, and `post_ciphertext`
+are the whole instruction set. Commitments are 32 client-supplied bytes. The
+program does not open them. Nullifiers are stored so the same 32 bytes cannot
+be reused. Each note records an `owner`. `withdraw` and `shielded_transfer`
+fail with `NotNoteOwner` unless that owner signs. That's an ordinary
+signature check, not a zero-knowledge proof, and the owner is public.
+
+> **Deployed binary:** the ownership check is in the source on `main`. The
+> program at `E8zL7h…` on devnet has **not** been upgraded and still runs the
+> older code, which has no owner check. Treat devnet notes as spendable by
+> anyone until it is redeployed.
 
 **Program ID:** `E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm`
 
@@ -272,7 +280,7 @@ SAS program used by the agent package:
 │  Jubjub is a hash approximation                     │
 │  ZK proofs are placeholders                         │
 │  On-chain amount and depositor are public           │
-│  Withdraw does not check a spending key             │
+│  Spends are signature-gated, not ZK-proven          │
 │  No audit                                           │
 └─────────────────────────────────────────────────────┘
 ```

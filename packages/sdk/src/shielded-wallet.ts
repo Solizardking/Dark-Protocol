@@ -555,10 +555,22 @@ export class ShieldedWallet {
     to: string;
     amount: bigint;
     memo?: string;
+    /**
+     * Solana public key (base58) allowed to spend the payment note on-chain.
+     * Required unless the wallet is in demo mode: the v1 program records an
+     * owner per note and only that key can withdraw or transfer it.
+     */
+    recipientOwner?: string;
   }): Promise<TransferResult> {
     if (!this.hdWallet) {
       throw new Error('Cannot spend from a view-only wallet');
     }
+    if (!this.demoMode && !params.recipientOwner) {
+      throw new Error(
+        'transfer() needs recipientOwner (the Solana key that may spend the payment note on-chain)'
+      );
+    }
+    const recipientOwner = params.recipientOwner ? new PublicKey(params.recipientOwner) : undefined;
 
     const inputNote = this._selectNote(params.amount);
     if (!inputNote) {
@@ -606,7 +618,7 @@ export class ShieldedWallet {
 
     let txSignature: string | undefined;
     if (!this.demoMode) {
-      txSignature = await this._submitTransfer(inputNote, storedPay, payNote);
+      txSignature = await this._submitTransfer(inputNote, storedPay, payNote, recipientOwner!);
     }
 
     return {
@@ -924,7 +936,8 @@ export class ShieldedWallet {
   protected async _submitTransfer(
     inputNote:  ShieldedNote,
     outputNote: ShieldedNote,
-    encNote:    EncryptedNote
+    encNote:    EncryptedNote,
+    recipientOwner: PublicKey
   ): Promise<string> {
     if (!this.signerPublicKey || !this.signTx) {
       throw new Error(
@@ -945,31 +958,27 @@ export class ShieldedWallet {
     const outCommitment2    = Uint8Array.from(sha256(new Uint8Array([...outCommitment1, 0x01])));
 
     const encCt1 = new Uint8Array(580); encCt1.set(encNote.encCiphertext.slice(0, 580));
-    const encCt2 = new Uint8Array(580); // change note — empty ciphertext
     const outCt1 = new Uint8Array(80);  outCt1.set(encNote.outCiphertext.slice(0, 80));
-    const outCt2 = new Uint8Array(80);
     const epk1   = new Uint8Array(32);  epk1.set(encNote.epk.slice(0, 32));
-    const epk2   = new Uint8Array(32);  epk2.set(sha256(encNote.epk).slice(0, 32));
 
     const [statePDA]   = client.protocolStatePDA();
     const [inputPDA]   = client.notePDA(Uint8Array.from(Buffer.from(inputNote.commitment, 'hex')));
     const [nullPDA]    = client.nullifierPDA(inputNullifier);
     const [outNote1PDA] = client.notePDA(outCommitment1);
     const [outNote2PDA] = client.notePDA(outCommitment2);
+    const sender = this.signerPublicKey;
 
-    const tx: Transaction = await (client.program.methods as any)
+    // Two Sapling ciphertexts don't fit in one transaction, so the program
+    // creates the outputs first and the payment ciphertext is posted next.
+    const transferIx = await (client.program.methods as any)
       .shieldedTransfer(
         Array.from(inputNullifier),
         Array.from(outCommitment1),
         Array.from(outCommitment2),
-        Array.from(encCt1),
-        Array.from(encCt2),
-        Array.from(outCt1),
-        Array.from(outCt2),
-        Array.from(epk1),
-        Array.from(epk2),
         outputNote.value,
         inputNote.value - outputNote.value,
+        recipientOwner,
+        sender,
       )
       .accounts({
         protocolState:  statePDA,
@@ -977,19 +986,25 @@ export class ShieldedWallet {
         nullifierRecord: nullPDA,
         outputNote1:    outNote1PDA,
         outputNote2:    outNote2PDA,
-        sender:         this.signerPublicKey,
+        sender,
         systemProgram:  SystemProgram.programId,
       })
       .transaction();
+    const postIx = await (client.program.methods as any)
+      .postCiphertext(Array.from(encCt1), Array.from(outCt1), Array.from(epk1))
+      .accounts({ note: outNote1PDA, authority: sender })
+      .transaction();
 
-    const { blockhash } = await client.connection.getLatestBlockhash();
-    tx.recentBlockhash  = blockhash;
-    tx.feePayer         = this.signerPublicKey;
-
-    const signed = await this.signTx(tx);
-    const sig    = await client.connection.sendRawTransaction(signed.serialize());
-    await client.connection.confirmTransaction(sig, 'confirmed');
-    return sig;
+    let lastSig = '';
+    for (const tx of [transferIx, postIx] as Transaction[]) {
+      const { blockhash } = await client.connection.getLatestBlockhash();
+      tx.recentBlockhash  = blockhash;
+      tx.feePayer         = sender;
+      const signed = await this.signTx(tx);
+      lastSig = await client.connection.sendRawTransaction(signed.serialize());
+      await client.connection.confirmTransaction(lastSig, 'confirmed');
+    }
+    return lastSig;
   }
 }
 

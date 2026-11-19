@@ -4,7 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ─── Secret scanning ─────────────────────────────────────────────────────────
@@ -19,69 +26,72 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # No GITLEAKS_LICENSE needed for public repos
-        with:
-          config: .gitleaks.toml
+          GITLEAKS_CONFIG: .gitleaks.toml
 
-  # ─── SDK build + type-check ──────────────────────────────────────────────────
-  sdk:
-    name: SDK — build & type-check
+  # ─── TypeScript packages (npm workspaces, one root lockfile) ─────────────────
+  packages:
+    name: Packages — build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install (root workspaces)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build sas-lib
+        run: npm run build -w sas-lib
+      - name: Build protocol
+        run: npm run build -w @openclawdsol/dark-protocol
+      - name: Build + test SDK (tsc + rollup, Node import smoke test)
+        run: npm run build -w @openclawdsol/dark-protocol-sdk && npm test -w @openclawdsol/dark-protocol-sdk
+      - name: Build + test tee-agents
+        run: npm test -w @openclawdsol/dark-tee-agents
+      - name: Build terminal
+        run: npm run build -w dark-x402-terminal
+      - name: Build Solana client
+        run: npm run build -w @clawd/solanaos-protocol-client
+
+  # ─── Anchor program build + local-validator tests ────────────────────────────
+  anchor:
+    name: Anchor — build & test dark_protocol_program
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/sdk
-
+        working-directory: dark-protocol-program
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-          cache-dependency-path: packages/sdk/package-lock.json
+          cache-dependency-path: dark-protocol-program/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: System deps for anchor-cli (hidapi needs libudev)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libudev-dev pkg-config
 
-      - name: Build (tsc + rollup)
-        run: npm run build
-
-      - name: Upload dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: sdk-dist
-          path: packages/sdk/dist/
-
-  # ─── Anchor program build ────────────────────────────────────────────────────
-  anchor:
-    name: Anchor — build dark_protocol_program
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: dark-protocol-program
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Solana CLI
+      - name: Install Solana CLI (Agave)
         run: |
-          sh -c "$(curl -sSfL https://release.solana.com/v1.18.20/install)"
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.3.13/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
-      - name: Install Anchor CLI
-        run: |
-          cargo install --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli --locked
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
-
-      - name: Cache Rust build
+      - name: Cache Rust build + anchor-cli
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin/anchor
             dark-protocol-program/target
-          key: ${{ runner.os }}-anchor-${{ hashFiles('dark-protocol-program/Cargo.lock') }}
+          key: ${{ runner.os }}-anchor-0.32.1-${{ hashFiles('dark-protocol-program/Cargo.lock') }}
+
+      - name: Install Anchor CLI
+        run: |
+          command -v anchor >/dev/null || cargo install --git https://github.com/coral-xyz/anchor --tag v0.32.1 anchor-cli --locked
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
 
       - name: Build Anchor program
         run: anchor build
@@ -89,34 +99,14 @@ jobs:
       - name: Verify IDL generated
         run: test -f target/idl/dark_protocol_program.json
 
+      - name: Install test deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Test on a throwaway local validator
+        run: npm test
+
       - name: Upload .so artifact
         uses: actions/upload-artifact@v4
         with:
           name: dark-protocol-program
           path: dark-protocol-program/target/deploy/dark_protocol_program.so
-
-  # ─── darkswap Next.js app ────────────────────────────────────────────────────
-  darkswap:
-    name: DarkSwap — Next.js build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: darkswap
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: darkswap/package-lock.json
-
-      - name: Install
-        run: npm ci --legacy-peer-deps
-
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_PROGRAM_ID: 'E8zL7h9qHjC7sMf2WCYhdqS5iLkYhPJ9yAhTfevo74jm'
-          SKIP_ENV_VALIDATION: 'true'
