@@ -44,8 +44,8 @@ jobs:
         run: npm run build -w sas-lib
       - name: Build protocol
         run: npm run build -w @openclawdsol/dark-protocol
-      - name: Build SDK (tsc + rollup)
-        run: npm run build -w @openclawdsol/dark-protocol-sdk
+      - name: Build + test SDK (tsc + rollup, Node import smoke test)
+        run: npm run build -w @openclawdsol/dark-protocol-sdk && npm test -w @openclawdsol/dark-protocol-sdk
       - name: Build + test tee-agents
         run: npm test -w @openclawdsol/dark-tee-agents
       - name: Build terminal
@@ -68,6 +68,9 @@ jobs:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: dark-protocol-program/package-lock.json
+
+      - name: System deps for anchor-cli (hidapi needs libudev)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libudev-dev pkg-config
 
       - name: Install Solana CLI (Agave)
         run: |
