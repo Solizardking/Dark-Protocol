@@ -272,6 +272,12 @@ export declare class ShieldedWallet {
         to: string;
         amount: bigint;
         memo?: string;
+        /**
+         * Solana public key (base58) allowed to spend the payment note on-chain.
+         * Required unless the wallet is in demo mode: the v1 program records an
+         * owner per note and only that key can withdraw or transfer it.
+         */
+        recipientOwner?: string;
     }): Promise<TransferResult>;
     /**
      * Compute local balance from unspent notes.
@@ -333,7 +339,7 @@ export declare class ShieldedWallet {
      * Submit a shielded_transfer instruction to the Dark Protocol program.
      * Requires `signerPublicKey` and `signTransaction` set on the wallet.
      */
-    protected _submitTransfer(inputNote: ShieldedNote, outputNote: ShieldedNote, encNote: EncryptedNote): Promise<string>;
+    protected _submitTransfer(inputNote: ShieldedNote, outputNote: ShieldedNote, encNote: EncryptedNote, recipientOwner: PublicKey): Promise<string>;
 }
 /**
  * View-only wallet derived from a {@link ViewingKeyExport}.

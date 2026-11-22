@@ -15,7 +15,12 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Swap } from "jupiverse-kit";
+// jupiverse-kit is a browser-only React widget whose package marks CommonJS
+// output as ESM, so a static import breaks `import "@openclawdsol/dark-protocol-sdk"`
+// in Node. Load it lazily, only when the component renders.
+const Swap = React.lazy<React.ComponentType<any>>(() =>
+  import("jupiverse-kit").then((m: any) => ({ default: m.Swap ?? m.default?.Swap }))
+);
 import { PublicKey, Connection } from '@solana/web3.js';
 import { DarkProtocolClient } from '../client';
 import { PrivateSwapManager } from '../swap';
@@ -300,12 +305,14 @@ export const DarkSwap: React.FC<DarkSwapProps> = ({
 
       {/* Jupiter Swap Widget */}
       <div className="jupiter-swap-wrapper relative">
-        <Swap
-          rpcUrl={rpcUrl}
-          referralKey={referralKey}
-          platformFeeBps={platformFeeBps}
-          apiKey={apiKey}
-        />
+        <React.Suspense fallback={<div className="text-xs text-gray-400">Loading swap…</div>}>
+          <Swap
+            rpcUrl={rpcUrl}
+            referralKey={referralKey}
+            platformFeeBps={platformFeeBps}
+            apiKey={apiKey}
+          />
+        </React.Suspense>
 
         {/* Shielded Mode Overlay */}
         {state.isShieldedMode && (
