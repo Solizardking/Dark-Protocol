@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Protocol → @solanafdn: help us formally verify private Solana</title>
+<meta name="description" content="An open request to the Solana Foundation: fund formal-verification credits so the Dark Protocol privacy pool, its zero-knowledge circuit, and our TEE-gated confidential-compute stack get machine-checked proofs, published openly for the whole ecosystem. Also: we are integrating Helius Privacy Rings and Crossmint.">
+<link rel="canonical" href="https://protocol.darkx402.com/solana-foundation">
+<meta name="theme-color" content="#05060a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Dark Protocol">
+<meta property="og:title" content="Help us formally verify private Solana — an open request to @solanafdn">
+<meta property="og:description" content="Our first formal-verification run used its whole 500-credit grant with all 7 properties unresolved. We're asking the Solana Foundation for credits to finish it, and we'll publish every spec, proof and counterexample.">
+<meta property="og:url" content="https://protocol.darkx402.com/solana-foundation">
+<meta property="og:image" content="https://protocol.darkx402.com/og/solana-foundation.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dark Protocol: an open request to the Solana Foundation for formal-verification credits">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@0rdlibrary">
+<meta name="twitter:title" content="Help us formally verify private Solana — an open request to @solanafdn">
+<meta name="twitter:description" content="Privacy pool, ZK circuit, TEE-gated gateway: we've written the properties. We need credits to prove them, and we'll publish every result openly.">
+<meta name="twitter:image" content="https://protocol.darkx402.com/og/solana-foundation.png">
+<meta name="twitter:image:alt" content="Dark Protocol: an open request to the Solana Foundation for formal-verification credits">
+<style>
+  :root{
+    --bg:#05060a; --bg2:#0a0c14; --card:#0d1019; --line:#1c2130;
+    --text:#e8eaf2; --muted:#9aa3b8; --faint:#6b7390;
+    --purple:#9945FF; --green:#14F195; --amber:#ffb454; --red:#ff6b7a;
+    --grad:linear-gradient(92deg,#9945FF 0%,#14F195 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+  a{color:var(--green);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);background:rgba(5,6,10,.85);position:sticky;top:0;backdrop-filter:blur(8px);z-index:10}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em}
+  .brand .dot{width:11px;height:11px;border-radius:3px;background:var(--grad)}
+  .brand small{color:var(--muted);font-weight:500;letter-spacing:.08em}
+  .nav .mono{font-size:12px;color:var(--muted)}
+
+  /* hero */
+  .hero{padding:72px 0 46px;text-align:left}
+  .kicker{font-size:12px;letter-spacing:.28em;color:var(--green);text-transform:uppercase;margin-bottom:18px}
+  h1{font-size:clamp(34px,6vw,54px);line-height:1.12;font-weight:800;letter-spacing:-.01em}
+  h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{margin-top:20px;font-size:19px;color:var(--muted);max-width:640px}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:13px}
+  .pill .s{width:8px;height:8px;border-radius:50%}
+  .s-green{background:var(--green)} .s-amber{background:var(--amber)} .s-grey{background:#5a6480}
+  .s-amber{box-shadow:0 0 0 0 rgba(255,180,84,.5);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,180,84,.45)}70%{box-shadow:0 0 0 8px rgba(255,180,84,0)}100%{box-shadow:0 0 0 0 rgba(255,180,84,0)}}
+
+  /* sections */
+  section{padding:38px 0;border-top:1px solid var(--line)}
+  h2{font-size:26px;font-weight:750;letter-spacing:-.01em;margin-bottom:8px}
+  h2 .num{color:var(--purple);font-family:ui-monospace,Menlo,monospace;font-size:18px;margin-right:10px}
+  .sub{color:var(--muted);margin-bottom:22px;max-width:680px}
+  p{margin-bottom:14px;color:#cdd3e2}
+  p strong, li strong{color:var(--text)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+  .card h3{font-size:17px;margin-bottom:6px}
+  .card p{margin-bottom:0;color:var(--muted);font-size:15px}
+  .analogy{border-left:3px solid var(--purple);background:linear-gradient(90deg,rgba(153,69,255,.08),transparent 65%)}
+  .analogy p{color:#cdd3e2}
+
+  /* promise list */
+  .promise{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:12px}
+  .promise .n{flex:0 0 34px;height:34px;border-radius:10px;background:var(--grad);color:#05060a;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .promise h3{font-size:16.5px;margin-bottom:3px}
+  .promise p{color:var(--muted);font-size:14.5px;margin:0}
+
+  /* ladder */
+  .step{display:flex;gap:16px;padding:16px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .tag{flex:0 0 92px}
+  .tag span{display:inline-block;font-size:11px;letter-spacing:.12em;padding:4px 9px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+  .tag .done{color:var(--green);border-color:rgba(20,241,149,.4)}
+  .tag .live{color:var(--amber);border-color:rgba(255,180,84,.45)}
+  .step h3{font-size:16px;margin-bottom:2px}
+  .step p{color:var(--muted);font-size:14.5px;margin:0}
+
+  .honest{background:rgba(255,180,84,.05);border:1px solid rgba(255,180,84,.28);border-radius:14px;padding:22px 24px}
+  .honest h3{color:var(--amber);font-size:16px;margin-bottom:10px}
+  .honest li{color:#cdd3e2;font-size:15px;margin-bottom:8px;margin-left:18px}
+
+  .faq h3{font-size:16px;margin:18px 0 4px}
+  .faq p{color:var(--muted);font-size:15px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 54px;color:var(--muted);font-size:13.5px}
+  footer .row{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+  .fineprint{margin-top:14px;font-size:12.5px;color:#5f6b7f}
+
+  /* nav links */
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px}
+  .navlinks a{color:var(--muted)}
+  .navlinks a:hover{color:var(--green);text-decoration:none}
+  .navlinks a.on{color:var(--text)}
+  .navlinks a.sf{color:var(--green);font-weight:600}
+  .wrap.nav{padding-left:22px;padding-right:22px}
+  @media (max-width:640px){.nav{flex-direction:column;align-items:flex-start;gap:8px}.navlinks{gap:4px 14px}}
+  /* solana-foundation page */
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:28px;padding:13px 22px;border-radius:12px;background:var(--grad);color:#05060a;font-weight:800;font-size:16px}
+  .cta:hover{text-decoration:none;filter:brightness(1.08)}
+  .cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line);font-weight:600;margin-left:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .grid .card{margin-bottom:0}
+  .chip{display:inline-block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted);margin-bottom:10px}
+  .chip.ok{color:var(--green);border-color:rgba(20,241,149,.4)}
+  .chip.wip{color:var(--amber);border-color:rgba(255,180,84,.45)}
+  .chip.open{color:var(--red);border-color:rgba(255,107,122,.45)}
+  .scope{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  .scope th{text-align:left;color:var(--faint);font-weight:600;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;padding:10px 10px;border-bottom:1px solid var(--line)}
+  .scope td{vertical-align:top;padding:14px 10px;border-bottom:1px solid var(--line);color:#cdd3e2}
+  .scope td:first-child{color:var(--text);font-weight:650;min-width:150px}
+  .scope td small{display:block;color:var(--faint);font-weight:400;font-size:12.5px;margin-top:4px}
+  .scope ul{margin:0 0 0 16px}
+  .scope li{margin-bottom:4px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:4px 12px}
+  .why li, .gives li{margin:0 0 10px 20px;color:#cdd3e2}
+  .ask{border:1px solid rgba(153,69,255,.45);background:linear-gradient(120deg,rgba(153,69,255,.12),rgba(20,241,149,.06));border-radius:16px;padding:26px 26px}
+  .ask h3{font-size:19px;margin-bottom:10px}
+  .ask ol{margin:8px 0 0 20px}
+  .ask li{margin-bottom:10px;color:#cdd3e2}
+  .integ h3{display:flex;align-items:center;gap:10px}
+  .mono-sm{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--faint);word-break:break-all}
+  @media (max-width:560px){.cta.ghost{margin-left:0;margin-top:12px}.scope{font-size:13px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/dark-protocol" style="color:var(--text)"><span class="dot"></span>DARK&nbsp;PROTOCOL <small>· BY DARKX402</small></a>
+    <nav class="navlinks" aria-label="Site"><a href="/dark-protocol">Protocol</a><a href="/dark-protocol/article">The story</a><a href="/dark-protocol/solana-foundation" class="sf on" aria-current="page">@solanafdn ask</a></nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">An open request to the Solana Foundation</div>
+    <h1>Help us <span class="grad">prove</span> private Solana — not just promise it.</h1>
+    <p class="lede">We've built a zero-knowledge privacy pool, a TEE-gated confidential-compute gateway, and a private wallet on Solana. We've written down, in precise terms, the rules each one must never break. What we can't do alone is pay for the machine-checked proofs. <strong style="color:var(--text)">@solanafdn, we're asking for formal-verification credits</strong> — and everything they buy will be published openly for the ecosystem.</p>
+    <div class="pills">
+      <span class="pill"><span class="s s-amber"></span>First proof run: <strong>credits exhausted, 7/7 unresolved</strong></span>
+      <span class="pill"><span class="s s-green"></span>Specs <strong>written &amp; packaged</strong></span>
+      <span class="pill"><span class="s s-grey"></span>Funding: <strong>not yet secured</strong></span>
+    </div>
+    <a class="cta" href="https://x.com/solanafdn" target="_blank" rel="noopener">@solanafdn — help us finish the proof →</a><a class="cta ghost" href="#scope">See the verification scope</a>
+  </div>
+
+  <!-- 01 BUILT -->
+  <section id="built">
+    <h2><span class="num">01</span>What we've built</h2>
+    <p class="sub">Everything here is alpha software running on Solana devnet or behind a verification gate. No mainnet funds are at risk today, which is exactly why now is the time to prove it.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="chip ok">Devnet</span>
+        <h3>Dark Protocol privacy pool</h3>
+        <p>Deposit SOL, hold a private note, withdraw to a fresh wallet with a Groth16 proof over BN254. Leaves are Poseidon-bound to the deposited amount on-chain; nullifiers stop double-spends. Program <span class="mono-sm">2GmpuV…TA5kL</span>.</p>
+      </div>
+      <div class="card">
+        <span class="chip ok">Devnet · alpha</span>
+        <h3>Shielded note pool v1</h3>
+        <p>The open-source Anchor program in our public repo: Sapling-compatible encrypted notes (ChaCha20-Poly1305) stored on-chain, nullifier uniqueness via PDAs, and 1-in/2-out shielded transfers. Program <span class="mono-sm">E8zL7h…74jm</span>.</p>
+      </div>
+      <div class="card">
+        <span class="chip wip">Integrating</span>
+        <h3>Umbra: a TEE-gated gateway</h3>
+        <p>Our confidential-compute gateway ran on Intel TDX hardware (Phala Cloud), where our verifier returned <strong>OVERALL: VERIFIED</strong> against a fresh nonce. Reads stay open, but sends and the prover return <span class="mono">423 Locked</span> until attestation verifies. It never holds a user's spending key.</p>
+      </div>
+      <div class="card">
+        <span class="chip wip">Integrating</span>
+        <h3>Zolana dark wallet</h3>
+        <p>A private Solana wallet showing real public and shielded balances. Register, shield, send, and unshield are built client-side and signed by the user's own wallet. The server never signs.</p>
+      </div>
+      <div class="card">
+        <span class="chip wip">Alpha</span>
+        <h3>Confidential AI agents</h3>
+        <p><span class="mono">dark-tee-agents</span>: enclave-backed agents with signed attestation quotes, identity anchored through the Solana Attestation Service, sealed inference, and x402 shielded payments.</p>
+      </div>
+      <div class="card">
+        <span class="chip">Packaged · paused</span>
+        <h3>Order-book pilot</h3>
+        <p>A second formal-verification pilot, with eight properties for the on-chain limit order book that will settle Dark Percolator trades. It's fully packaged but never started, because there were no credits left.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 WHY -->
+  <section id="why">
+    <h2><span class="num">02</span>Why formal verification, and why here</h2>
+    <p class="sub">Privacy systems fail quietly. A public ledger at least shows you the theft; a shielded pool can hide it. Three layers of our stack need more than tests.</p>
+    <div class="card">
+      <h3>Zero-knowledge &amp; confidential-state soundness</h3>
+      <p>When amounts and owners are hidden, the program's own bookkeeping is the only thing standing between a pool and a drain. We have already fixed one bug of exactly this kind (tracked as <span class="mono">NEW-1</span>): a deposit's amount was not bound to the note it created, so a 1-lamport deposit could have been dressed up to drain the pool. A proof that <em>the leaf is always Poseidon(commitment, amount), for the amount actually transferred</em> closes that whole class of bug for good, which no test suite can do.</p>
+    </div>
+    <div class="card">
+      <h3>TEE attestation gating logic</h3>
+      <p>Confidential compute is only as strong as the code that decides "this enclave is trusted". Umbra unlocks sends only when verification passes with a fresh nonce; our agent SDK checks measurements, signatures, allow-lists, and quote age. While writing this scope we found that a hardware-imported quote's measurement is derived differently from the one the verifier recomputes, so the two paths disagree. Gate logic like this should be <strong>specified and proved</strong>, not eyeballed.</p>
+    </div>
+    <div class="card">
+      <h3>On-chain program invariants</h3>
+      <p>Conservation of lamports, no admin backdoor, a rejected proof never burns a note, honest withdrawals always go through, and an append-only root history. These are universal statements over every sequence of instructions, so only a proof can settle them.</p>
+    </div>
+  </section>
+
+  <!-- 03 SCOPE -->
+  <section id="scope">
+    <h2><span class="num">03</span>The verification scope</h2>
+    <p class="sub">The scope comes from the code we actually ship. "Candidate tooling" means what we'd propose; we'll pick final tools with the funder and with reviewers.</p>
+    <div class="tablewrap">
+    <table class="scope">
+      <thead><tr><th>Component</th><th>Properties to prove</th><th>Candidate tooling</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Privacy pool program<small>Rust / Anchor, ~1,760 lines · devnet</small></td>
+          <td><ul>
+            <li>No undefined behavior or panics; checked arithmetic only</li>
+            <li>Lamport conservation; donations can't inflate the ledger</li>
+            <li>Withdraw gating in exact order; a rejected proof never burns a nullifier</li>
+            <li>Deposit binding (NEW-1 as a theorem)</li>
+            <li>Authority impotence: no admin path to funds</li>
+            <li>Progress: a valid withdrawal always succeeds, and every error has a named cause</li>
+            <li>Root-history &amp; frontier integrity</li>
+          </ul></td>
+          <td>Aristotle (Harmonic), Rust → Lean. Specs are already written and packaged, and the first run ended <strong>OUT_OF_BUDGET</strong>.</td>
+        </tr>
+        <tr>
+          <td>Withdraw circuit<small>Circom · Groth16 / BN254</small></td>
+          <td><ul>
+            <li>No under-constrained signals: each public input determines a unique valid witness</li>
+            <li>Nullifier determinism &amp; uniqueness per note</li>
+            <li>Merkle-membership soundness for a depth-20 tree</li>
+            <li>Public inputs bind root, nullifier, recipient and amount</li>
+          </ul></td>
+          <td>Circuit-level checkers for under-constraint (e.g. Picus, Circomspect), plus a written soundness argument. Trusted-setup soundness is handled separately by the MPC ceremony.</td>
+        </tr>
+        <tr>
+          <td>Shielded note pool v1<small>Anchor · public repo</small></td>
+          <td><ul>
+            <li>Spend authorization: withdraw and transfer must be bound to proof of note ownership <span class="chip open" style="margin:0 0 0 4px">open in v1</span></li>
+            <li>Value conservation across 1→2 transfers; no overflow</li>
+            <li>Nullifier/note one-time spend</li>
+          </ul></td>
+          <td>Kani bounded model checking or Aristotle. Specifying v1 now tells us what v2 must carry forward.</td>
+        </tr>
+        <tr>
+          <td>Umbra TEE gate<small>Rust gateway · Intel TDX</small></td>
+          <td><ul>
+            <li>No send or prover call is forwarded unless the attestation state is VERIFIED with a fresh nonce</li>
+            <li>Origin and RPC-method allow-lists are total; nothing outside them is proxied</li>
+            <li>The API key never appears in a response or a log line</li>
+          </ul></td>
+          <td>A state-machine model of the gate (TLA+ or Lean) plus Kani proofs on the Rust handlers.</td>
+        </tr>
+        <tr>
+          <td>Attestation verifiers<small>ACI verifier · dark-tee-agents</small></td>
+          <td><ul>
+            <li>report_data binds the keyset digest and the verifier's nonce, so there's no replay</li>
+            <li>Quote verification accepts exactly the allow-listed measurements and providers</li>
+            <li>Hardware-imported and software quotes satisfy one consistent envelope spec</li>
+          </ul></td>
+          <td>A formal spec of the verification steps (Lean) plus property-based tests derived from it.</td>
+        </tr>
+        <tr>
+          <td>Order-book settlement<small>Dark Percolator</small></td>
+          <td><ul><li>Eight properties, packaged for a second pilot that is paused until it has credits</li></ul></td>
+          <td>Aristotle (Harmonic)</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 04 ASK -->
+  <section id="ask">
+    <h2><span class="num">04</span>The ask</h2>
+    <p class="sub">Our first run was funded by a 500-credit signup grant. It used all of it in about two hours and ended with all seven properties unresolved: none proved, none refuted, no counterexamples. The verifier didn't find our code wrong. It ran out of fuel partway through.</p>
+    <div class="ask">
+      <h3>Solana Foundation: fund formal-verification credits for private Solana</h3>
+      <ol>
+        <li><strong>Phase 1: finish the pool.</strong> Resume the existing Aristotle project and complete the seven pool properties, starting with deposit binding and conservation of funds. From the burn rate we observed, we estimate this at roughly <strong>$1,000–$2,000 in credits</strong>.</li>
+        <li><strong>Phase 2: the circuit and the gate.</strong> Under-constraint analysis of the withdraw circuit, and a formal model of the Umbra TEE gate and attestation verifiers.</li>
+        <li><strong>Phase 3: settlement.</strong> Start the order-book pilot that's already packaged.</li>
+      </ol>
+      <p style="margin:14px 0 0;color:var(--muted);font-size:14.5px">Credits paid directly to a verification provider, or funding earmarked for verification, both work for us. We'll publish a costed plan for Phases 2–3 before any spend.</p>
+    </div>
+  </section>
+
+  <!-- 05 GIVES BACK -->
+  <section id="returns">
+    <h2><span class="num">05</span>What the ecosystem gets back</h2>
+    <ul class="gives">
+      <li><strong>Open specs and proofs.</strong> Every property statement, Lean artifact and verifier output, published in a public repository.</li>
+      <li><strong>Public reports.</strong> Each property is reported as proved, refuted with its counterexample (and our fix), or unresolved, with the verification boundary stated. Results get published whether they're good or bad.</li>
+      <li><strong>Reusable verified primitives.</strong> Amount-bound Poseidon leaves, nullifier-PDA one-time spends, append-only root history, and an attestation-gated RPC pattern. Any Solana privacy or confidential-compute team can reuse them.</li>
+      <li><strong>A worked example.</strong> A real-world case study of formally verifying a ZK-adjacent Solana program, including what it cost.</li>
+    </ul>
+  </section>
+
+  <!-- 06 INTEGRATIONS -->
+  <section id="integrations">
+    <h2><span class="num">06</span>Integrations in progress</h2>
+    <p class="sub">We are <strong>integrating</strong> these. Neither is a partnership or an endorsement.</p>
+    <div class="grid integ">
+      <div class="card">
+        <span class="chip wip">Integrating</span>
+        <h3>Helius Privacy Rings</h3>
+        <p>We're wiring <span class="mono">@heliuslabs/spr</span> into Umbra and the Zolana wallet. On devnet we shielded 0.01 SOL into a Ring and unshielded 0.005 SOL with a ZK proof, after the SDK attested the Helius prover against Helius's signed TEE policy. On November 19, 2026 we merged the wallet and gateway work that takes this toward mainnet. Note that by default a Ring is confidential, not anonymous: sender, recipient and transaction hash stay public.</p>
+      </div>
+      <div class="card">
+        <span class="chip wip">In progress</span>
+        <h3>Crossmint</h3>
+        <p>We're integrating Crossmint into the Dark stack. We'll document the scope here when it ships, along with which parts of the stack it touches and what it can and can't see.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 LIMITS -->
+  <section id="limits">
+    <h2><span class="num">07</span>What this page does not claim</h2>
+    <div class="honest">
+      <h3>Honest limits, on purpose</h3>
+      <ul>
+        <li>No property has been formally proved yet. "Formal verification" here means the work we've specified and started, not a result.</li>
+        <li>The Solana Foundation has not funded, endorsed or reviewed this work. This page is a request.</li>
+        <li>Helius and Crossmint are integrations we're building. They have not endorsed us, and we have no partnership with either.</li>
+        <li>Dark Protocol runs on devnet. Mainnet waits for the MPC ceremony and the verification results.</li>
+        <li>Formal verification proves stated properties under stated assumptions, such as the hash function and the Groth16 verifier being treated as trusted. It isn't a guarantee of everything.</li>
+      </ul>
+    </div>
+    <a class="cta" href="https://x.com/solanafdn" target="_blank" rel="noopener">Tell @solanafdn you want verified privacy on Solana →</a>
+    <p style="margin-top:18px;color:var(--muted);font-size:14.5px">Read the full story: <a href="/dark-protocol/article">A Year of Building Private Solana, and the Proof We Ran Out of Fuel to Finish</a> · Code: <a href="https://github.com/Solizardking/Dark-Protocol" target="_blank" rel="noopener">github.com/Solizardking/Dark-Protocol</a> · Scope doc: <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/docs/FORMAL_VERIFICATION.md" target="_blank" rel="noopener">FORMAL_VERIFICATION.md</a></p>
+  </section>
+
+  <footer>
+    <div class="row">
+      <div><strong style="color:var(--text)">DARK PROTOCOL</strong> · a Dark DeFi project · darkx402.com</div>
+      <div class="mono">program (devnet): 2GmpuVGfFVfhiqUWrrhkkWBk3i8TpbTuqyiZNXETA5kL</div>
+    </div>
+    <p class="fineprint">Status as of November 19, 2026: live on Solana devnet for testing; formal verification specified but not complete; no funding from the Solana Foundation has been received. Nothing on this page is financial advice.</p>
+  </footer>
+
+</div>
+</body>
+</html>

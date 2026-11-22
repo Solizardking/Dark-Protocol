@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Protocol: A Year of Building Private Solana — and the Proof We Ran Out of Fuel to Finish</title>
+<meta name="description" content="Dark Protocol is a zero-knowledge privacy pool for Solana, built by the Dark x402 team. This is the story of what we built, how hard we tried to break it, and the machine-checked proof we started with Harmonic's Aristotle — until the credits ran out. We're looking for a sponsor to help us finish it.">
+<style>
+  :root{
+    --bg:#05060a; --bg2:#0a0c14; --card:#0d1019; --line:#1c2130;
+    --text:#e8eaf2; --muted:#9aa3b8; --faint:#6b7390;
+    --purple:#9945FF; --green:#14F195; --amber:#ffb454; --red:#ff6b7a;
+    --grad:linear-gradient(92deg,#9945FF 0%,#14F195 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace}
+  code{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em;background:var(--bg2);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+  a{color:var(--green);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);background:rgba(5,6,10,.85);position:sticky;top:0;backdrop-filter:blur(8px);z-index:10}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.04em}
+  .brand .dot{width:11px;height:11px;border-radius:3px;background:var(--grad)}
+  .brand small{color:var(--muted);font-weight:500;letter-spacing:.08em}
+  .nav .mono{font-size:12px;color:var(--muted)}
+
+  /* article */
+  .backlink{display:inline-block;margin:34px 0 0;font-size:14px;color:var(--muted)}
+  .backlink:hover{color:var(--green)}
+  .kicker{font-size:12px;letter-spacing:.28em;color:var(--green);text-transform:uppercase;margin:26px 0 16px}
+  h1{font-size:clamp(30px,5vw,44px);line-height:1.18;font-weight:800;letter-spacing:-.01em}
+  h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .standfirst{margin-top:20px;font-size:18.5px;line-height:1.6;color:var(--muted);font-style:italic;max-width:700px}
+  .hero-img{margin:34px 0 6px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+  .hero-img img{display:block;width:100%;height:auto}
+  .hero-cap{font-size:12.5px;color:var(--faint);margin-bottom:8px}
+  article{padding:10px 0 6px}
+  article h2{font-size:25px;font-weight:750;letter-spacing:-.01em;margin:40px 0 14px;padding-top:28px;border-top:1px solid var(--line)}
+  article h2:first-of-type{border-top:none;padding-top:6px}
+  article p{margin-bottom:15px;color:#cdd3e2;font-size:16.5px}
+  article p strong, article li strong{color:var(--text)}
+  article ol, article ul{margin:6px 0 18px 22px;color:#cdd3e2;font-size:16px}
+  article li{margin-bottom:9px}
+  article li::marker{color:var(--purple);font-weight:700}
+  .statusbox{background:rgba(255,180,84,.05);border:1px solid rgba(255,180,84,.28);border-radius:14px;padding:20px 24px;margin:30px 0 8px}
+  .statusbox p{color:#cdd3e2;font-size:15px;font-style:italic;margin:0}
+  .follow{border-top:1px solid var(--line);margin-top:34px;padding-top:22px;color:var(--muted);font-size:15px}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 54px;color:var(--muted);font-size:13.5px;margin-top:38px}
+  footer .row{display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+  .fineprint{margin-top:14px;font-size:12.5px;color:#5f6b7f}
+  /* nav links */
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px}
+  .navlinks a{color:var(--muted)}
+  .navlinks a:hover{color:var(--green);text-decoration:none}
+  .navlinks a.on{color:var(--text)}
+  .navlinks a.sf{color:var(--green);font-weight:600}
+  .wrap.nav{padding-left:22px;padding-right:22px}
+  @media (max-width:640px){.nav{flex-direction:column;align-items:flex-start;gap:8px}.navlinks{gap:4px 14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span>DARK&nbsp;PROTOCOL <small>· BY DARKX402</small></div>
+    <nav class="navlinks" aria-label="Site"><a href="/dark-protocol">Protocol</a><a href="/dark-protocol/article" class="on" aria-current="page">The story</a><a href="/dark-protocol/solana-foundation" class="sf">@solanafdn ask</a></nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <a class="backlink" href="/dark-protocol">← Back to Dark Protocol</a>
+
+  <div class="kicker">The full story · November 19, 2026</div>
+  <h1>Dark Protocol: A Year of Building Private Solana — <span class="grad">and the Proof We Ran Out of Fuel to Finish</span></h1>
+  <p class="standfirst">Dark Protocol is a zero-knowledge privacy pool for Solana, built by the Dark x402 team. This is the story of what we built, how hard we tried to break it, and the machine-checked proof we started with Harmonic's Aristotle — until the credits ran out. We're looking for a sponsor to help us finish it.</p>
+
+  <div class="hero-img"><img src="/dark-protocol/article-hero.webp" alt="A circuit Merkle tree — purple roots rising into green branches — above a black pool holding a single golden note, inside an obsidian vault hall"></div>
+  <p class="hero-cap">The pool, the tree, and the note: every deposit a leaf, every withdrawal a proof.</p>
+
+  <article>
+
+    <h2>Why privacy on Solana needs more than a promise</h2>
+    <p>On a public blockchain, every payment leaves a trail anyone can follow forever. Dark Protocol breaks that trail without asking you to trust us: you deposit SOL into a shared pool, hold a private cryptographic note, and later withdraw to a fresh wallet using a zero-knowledge proof that shows "I own a valid note" without revealing which deposit was yours. No public link between the two wallets. No operator who can peek, freeze, or walk off with the funds — there's no operator at all, only code running on Solana that anyone can read.</p>
+    <p>But a privacy pool is only worth using if its rules can't be bent. It must never pay out more than was deposited. Never accept a forged proof. Never let the same note be spent twice. Never contain a backdoor. "Trust us, we tested it" is not an answer. So over the past year, we set out to earn a better one.</p>
+
+    <h2>The year of work</h2>
+    <p><strong>We started by tearing our own house down.</strong> Our first security audit of the original Dark DeFi codebase returned 39 findings — 6 critical, 8 high — including placeholder cryptography where real zero-knowledge proofs should have been. Rather than patch around it, we ordered a complete rewrite: real Groth16 proofs over BN254, circomlib Poseidon hashing throughout, a depth-20 Merkle tree of notes, and a withdraw circuit of 13,162 constraints.</p>
+    <p><strong>Then we attacked the rewrite.</strong> A hostile re-audit found what testing hadn't: a critical flaw (we track it as NEW-1) where the amount in a deposit wasn't cryptographically bound to the note it created. Left in place, a 1-lamport deposit could have been dressed up to drain the pool. We fixed it at the root — the program now computes the bound leaf on-chain, <code>Poseidon(commitment, amount)</code>, and the circuit proves membership of exactly that leaf — and added a drain regression test at every layer of the stack so it can never quietly come back.</p>
+    <p><strong>Then we rehearsed the whole lifecycle on devnet.</strong> Deposits and withdrawals end to end, including a withdrawal routed through a third-party relayer. A replayed withdrawal: rejected. A proof tampered with by a single lamport: rejected. The NEW-1 drain attack, attempted for real: rejected. The books balanced to the lamport — 7,000,001 lamports deposited across the rehearsal, 6,500,000 withdrawn, the remainder exactly the unspent test notes. Along the way we replaced our Poseidon implementation with Solana's native <code>sol_poseidon</code> syscall (~819 compute units per hash, byte-for-byte identical outputs proven on-chain before the swap) and landed final costs of roughly 25k CU to initialize, ~35k CU per deposit, and ~125–131k CU per withdrawal — practical numbers for mainnet. Every test suite passes: 20/20 program, 34/34 client, 13/13 ZK, 7/7 SDK, 3/3 indexer.</p>
+    <p><strong>And we prepared the trusted setup properly.</strong> A production Groth16 deployment needs a multi-party ceremony so no single person ever holds the toxic waste that could forge proofs. We imported the Hermez perpetual powers-of-tau at 2^15 and verified it bit-for-bit against its pinned BLAKE2b-512 hash, built and rehearsed the full contributor kit, and drafted the ceremony transcript and contributor materials. The ceremony runs before mainnet. No shortcuts.</p>
+
+    <h2>The proof we started — and where it stopped</h2>
+    <p>Testing checks examples. We wanted proof that checks <em>everything</em>. So we took Dark Protocol to <strong>Aristotle, Harmonic's formal verification engine</strong>, which translates our Rust program into a mathematical model and proves — or refutes, with a runnable counterexample — properties stated in plain English. We submitted seven:</p>
+    <ol>
+      <li><strong>No undefined behavior, no panics</strong> anywhere in the program.</li>
+      <li><strong>Conservation of funds</strong> — the pool's ledger always equals the sum of successful deposits minus successful withdrawals; donations can't inflate it.</li>
+      <li><strong>Withdraw gating</strong> — every check fires in exact order, and a rejected proof never burns a user's note.</li>
+      <li><strong>Deposit binding</strong> — the NEW-1 property: the amount is sealed to the note, mathematically.</li>
+      <li><strong>Authority impotence</strong> — the pool's authority field can never be used as a backdoor; there is no admin path to the funds.</li>
+      <li><strong>Progress</strong> — an honest user with a valid note can always withdraw; the pool can't brick itself.</li>
+      <li><strong>Root-history integrity</strong> — the Merkle root history contains only roots the program itself produced.</li>
+    </ol>
+    <p>Harmonic's signup grant gave us 500 credits. On November 18, 2026, we fired the run.</p>
+    <p><strong>Two hours later, the grant was gone — and the run ended OUT_OF_BUDGET with all seven properties unresolved.</strong> Not proved. Not refuted. No counterexamples — the verifier didn't find our code wrong; it ran out of fuel in the middle of proving it right. Formal verification of real cryptography-adjacent Rust is simply expensive: the prover was working through a ~1,760-line program whose correctness leans on Poseidon and Groth16 verification at its boundary. We also have a second pilot fully packaged and paused — eight properties for the on-chain limit orderbook that will settle Dark Percolator trades — which never got to start.</p>
+    <p>We publish our status page honestly, and it still says what it said the day we deployed it: <em>verification in progress</em>. We're not going to relabel an unfinished proof as a finished one. That's the whole point of doing this in public.</p>
+
+    <h2>What we're asking</h2>
+    <p><strong>We're looking for a sponsor to fund the Aristotle credits to finish the verification we started.</strong></p>
+    <p>Based on the burn rate we observed, completing the seven Dark Protocol properties plausibly takes a further $1,000–$2,000 in credits — we'd start with the two highest-value properties (deposit binding and conservation of funds) and publish results as they land: proved, refuted with a counterexample we'll fix, or unresolved with the boundary stated plainly. Sponsors get named credit on the protocol page and in the verification report, early access to the full results package, and the knowledge that mainnet privacy on Solana got its proof because they funded it.</p>
+
+    <h2>Why it matters beyond one pool</h2>
+    <p>Dark Protocol is the settlement core of a family we're bringing to Solana mainnet:</p>
+    <ul>
+      <li><strong>Confidential compute</strong> — TEE-attested execution where the machine itself proves what it ran.</li>
+      <li><strong>Private AI inference</strong> — Dark x402: model calls that run in the dark and are paid for in the dark, over x402.</li>
+      <li><strong>Private perpetual trading</strong> — Dark Percolator and Dark Perps: positions the whole world doesn't get to front-run.</li>
+    </ul>
+    <p>Every one of those stands on the same foundation: private value movement whose rules are <em>proven</em>, not promised. The pool is built. The ceremony is staged. The proofs are specified, packaged, and waiting on credits.</p>
+    <p><strong>Help us finish what we started.</strong></p>
+
+    <p class="follow"><strong style="color:var(--text)">Follow the work:</strong> <a href="https://darkx402.com/dark-protocol">darkx402.com/dark-protocol</a> · <a href="https://protocol.darkx402.com">protocol.darkx402.com</a> · X: <a href="https://x.com/0rdlibrary">@0rdlibrary</a> · GitHub: <a href="https://github.com/solizardking">github.com/solizardking</a></p>
+
+    <div class="statusbox">
+      <p>Status at publication: Dark Protocol is live on Solana devnet only. Mainnet is gated on completion of the MPC ceremony and the formal verification above. Nothing in this article is a claim that verification has completed — yet.</p>
+    </div>
+
+  </article>
+
+  <footer>
+    <div class="row">
+      <div><strong style="color:var(--text)">DARK PROTOCOL</strong> · a Dark DeFi project · darkx402.com</div>
+      <div class="mono">program (devnet): 2GmpuVGfFVfhiqUWrrhkkWBk3i8TpbTuqyiZNXETA5kL</div>
+    </div>
+    <p class="fineprint">Status as of November 19, 2026: live on Solana devnet for testing; formal verification in progress (Aristotle project “dark-protocol-pilot”); mainnet not launched. Nothing on this page is financial advice, and a system being verified is not a guarantee — it is evidence, published so you can weigh it yourself.</p>
+  </footer>
+
+</div>
+</body>
+</html>

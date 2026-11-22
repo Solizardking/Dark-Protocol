@@ -256,6 +256,16 @@ SAS program used by the agent package:
 
 ---
 
+## Formal verification
+
+We're asking the Solana Foundation for formal-verification credits. The page is at
+[protocol.darkx402.com/solana-foundation](https://protocol.darkx402.com/solana-foundation),
+and the full scope (components, properties, candidate tooling, sources) is in
+[docs/FORMAL_VERIFICATION.md](docs/FORMAL_VERIFICATION.md). No property is proved yet. The site
+source and Worker are in [`site/`](site/README.md).
+
+---
+
 ## Security
 
 <div align="center">
