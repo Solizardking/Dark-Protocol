@@ -47,6 +47,71 @@ in the tree, and the cluster status read from public RPC on **13 November 2026**
 
 ---
 
+---
+
+## November 2026 — the rewrite, formal verification, and the funding ask
+
+The current protocol lives in [`dark-protocol/`](dark-protocol/) and is a
+different, newer system than the earlier program below: a Groth16 /
+BN254 / Poseidon **shielded SOL pool with real on-chain proof
+verification**, built by rewriting the Dark DeFi programs after an audit
+found placeholder proof code in the old ones.
+
+**Where it stands (2026-11-19):**
+
+- **Devnet: live and rehearsed end to end.** Program
+  `2GmpuVGfFVfhiqUWrrhkkWBk3i8TpbTuqyiZNXETA5kL`, deployed bytes
+  hash-identical to the in-tree artifact. Deposits land at ~34.7K CU,
+  withdraws at ~125–131K CU (native `sol_poseidon` syscall — see
+  [`dark-protocol/docs/POSEIDON-COST.md`](dark-protocol/docs/POSEIDON-COST.md));
+  replay, tamper, and drain attempts were all rejected on-chain with the
+  designed errors. Full record:
+  [`dark-protocol/docs/W5-REHEARSAL.md`](dark-protocol/docs/W5-REHEARSAL.md).
+- **Mainnet: not deployed.** Two gates remain — a production MPC
+  ceremony for the verifying key (Hermez ptau at power 2^15, drand
+  beacon, five contributors; kit in
+  [`dark-protocol/zk/ceremony/`](dark-protocol/zk/ceremony/), decision
+  brief in
+  [`dark-protocol/docs/CEREMONY-DECISION-BRIEF.md`](dark-protocol/docs/CEREMONY-DECISION-BRIEF.md))
+  and formal verification.
+- **The public explainer** is [protocol.darkx402.com](https://protocol.darkx402.com/)
+  (also at [darkx402.com/dark-protocol](https://darkx402.com/dark-protocol));
+  its source is in [`site/`](site/), including the long-form article
+  ["A Year of Building Private Solana — and the Proof We Ran Out of Fuel to Finish"](site/article.md).
+
+### Formal verification — and what we are asking for
+
+Seven properties of the pool program are specified for **Harmonic
+Aristotle** (Rust → Lean): no UB / no panics, lamport conservation,
+withdraw gating, deposit binding, authority impotence, withdraw
+progress + error classification, and Merkle root/frontier integrity.
+Full spec: [`dark-protocol/aristotle/dark-protocol_spec.md`](dark-protocol/aristotle/dark-protocol_spec.md).
+
+The pilot ran on 2026-11-18 on a 500-credit grant. It consumed the
+grant in ~2 hours and ended **OUT_OF_BUDGET: all seven properties
+unresolved — none proved, none refuted, no counterexamples.** That is
+an unfinished proof, not a failed one. The complete run record is in
+[`dark-protocol/aristotle/`](dark-protocol/aristotle/).
+
+**The ask:** we are seeking sponsorship in **Harmonic Aristotle
+credits** — estimated **$1,000–$2,000** — to finish verifying these
+seven properties. Formal verification is the last technical gate before
+the MPC ceremony and any mainnet conversation: confidential compute,
+private AI inference, and perpetual trading on Solana should not hold
+other people's money on the strength of tests alone.
+
+### Integrations in progress
+
+- **Crossmint** — fiat on-ramp with private delivery (card → USDC →
+  shielded deposit), built and deployed on the Dark hub; one key-scope
+  step from its first live order.
+  [docs/integration/CROSSMINT_INTEGRATION.md](docs/integration/CROSSMINT_INTEGRATION.md)
+- **Helius Privacy Rings (SPR)** — a second shielded-balance layer:
+  client, explorer, and a Dark Protocol private wallet are built; the
+  shielded swap rail is designed and gated on a devnet proof plan.
+  [docs/integration/HELIUS_PRIVACY_RINGS.md](docs/integration/HELIUS_PRIVACY_RINGS.md)
+
+
 ## Programs
 
 The current note pool is one program. The shielded wallet is not a second id.
@@ -196,6 +261,16 @@ submitted to Intel Trust Authority and is not labeled verified.
 
 SAS program used by the agent package:
 `22zoJMtdu4tQc2PzL74ZUT7FrwgB1Udec8DdW4yw4BdG`.
+
+---
+
+## Formal verification
+
+We're asking the Solana Foundation for formal-verification credits. The page is at
+[protocol.darkx402.com/solana-foundation](https://protocol.darkx402.com/solana-foundation),
+and the full scope (components, properties, candidate tooling, sources) is in
+[docs/FORMAL_VERIFICATION.md](docs/FORMAL_VERIFICATION.md). No property is proved yet. The site
+source and Worker are in [`site/`](site/README.md).
 
 ---
 

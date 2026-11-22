@@ -1,0 +1,43 @@
+BASELINE — recorded 2026-11-18 ~12:05 EST (before any changes)
+Page source: ~/workspace/dark-protocol-page/index.html
+  size: 18327 bytes
+  sha256: 1d7229729d0cd3d0e221b1efb41d6509a8e0b3a6f64e12ae2f4b1bd430b685a3
+  title: Dark Protocol — Private transfers on Solana, with the math checked
+
+https://darkx402.com/                      -> 200, 59992 bytes, Next.js app HTML (marker: class="dark __variable_d8ebd1 __variable_4dc837)
+https://darkx402.com/dark-protocol         -> 404, 30216 bytes, app 404 page (same Next.js shell)
+https://darkx402.com/api/terminal/free/tools -> 404, 30238 bytes, app 404 page
+https://protocol.darkx402.com/             -> no response (curl rc=52 empty reply / effectively unreachable; subdomain not serving)
+
+AFTER — deployed + verified 2026-11-18 ~12:10 EST
+Worker created: dark-protocol-page (account 2, script etag d3a630091d4e572625a638dc06f3d4601eb8185cf66e28b23ba6d2ebbe6f79bc; account script count 98 -> 99)
+Route created: id 7bfe2eb13fbf42d7b26fc5df876eec60 | darkx402.com/dark-protocol* -> dark-protocol-page
+  (zone had ZERO pre-existing worker routes — the app binds via custom domains, all 4 preserved untouched)
+Custom domain: id 4e4f4c04b1d291dd31683bec6d5e7b9eec502bd6 | protocol.darkx402.com -> dark-protocol-page (auto-created DNS AAAA a932ff869b8a262176c4c859aeda5e86, 100::, proxied)
+
+https://darkx402.com/dark-protocol         -> 200 (was 404) — markers present; byte-exact vs source after stripping standard CF edge injections
+https://protocol.darkx402.com/             -> 200 (was no DNS) — markers present; byte-exact vs source after stripping standard CF edge injections
+https://darkx402.com/                      -> 200, 59992 bytes, app marker present — IDENTICAL to baseline (app untouched)
+https://darkx402.com/api/terminal/free/tools -> 404, 30238 bytes — IDENTICAL to baseline (app untouched)
+Note: Cloudflare injects 2 scripts into ALL HTML on this zone (WebMCP bridge + bot-challenge precursor; the app pages carry them too) — raw served bytes differ from source by those injections only.
+
+UPDATE — article posted 2026-11-19 ~11:38 EST (dev order: "Post it to the protocol page and generate art for it")
+Worker updated in place: dark-protocol-page (script etag d3a63009... -> 26b51e3ae9f22c08b9dac512a0ce49d2c8819f72fde07a1ff735a921f7cf70d1; same route + custom domain, untouched)
+Sources: ~/workspace/dark-protocol-page/index.html (main, 19,177 B — added ONE article card under the hero, nothing else changed)
+         ~/workspace/dark-protocol-page/article.html (article page, 13,885 B; converted faithfully from ~/workspace/dark-protocol-article/dark-protocol-article.md)
+         ~/workspace/dark-protocol-page/worker.js (built by build_worker.py — embeds both pages + hero image)
+Routing (worker normalises a leading /dark-protocol prefix, so paths work on both hosts):
+  /dark-protocol            -> main explainer (also protocol.darkx402.com/ and any other path, as before)
+  /dark-protocol/article    -> article page (also protocol.darkx402.com/article)
+  /dark-protocol/article-hero.webp -> hero image (also protocol.darkx402.com/article-hero.webp)
+Image serving: hero WebP (363,136 B) EMBEDDED base64 in the worker script and served from a dedicated route — no KV.
+  Final worker script size: 519,507 B = 507.3 KiB (Workers FREE limit 1 MiB — ~50% headroom). Served image verified byte-identical (sha256 faf1f8dcf74ddc7a11b867ebcc6d7121193754453bc5323d37775824540f997b) on both hosts, content-type image/webp.
+
+Verified live after deploy:
+https://darkx402.com/dark-protocol/article   -> 200, 14,665 B served — title, OUT_OF_BUDGET passage, sponsorship section, 7-property list, status footer all present
+https://protocol.darkx402.com/article        -> 200, 14,674 B served — same spot checks pass
+https://darkx402.com/dark-protocol/article-hero.webp -> 200, 363,136 B, image/webp (protocol host identical)
+https://darkx402.com/dark-protocol           -> 200, 19,957 B served — live-capture diff vs pre-change: ONLY the added article-card block (+ rotating CF nonce); status pills unchanged
+https://protocol.darkx402.com/               -> 200, 19,966 B served — same
+https://darkx402.com/                        -> 200, 59,992 B — IDENTICAL size to baseline; diff = CF challenge nonce only (app untouched)
+https://darkx402.com/api/terminal/free/tools -> 404, 30,238 B — IDENTICAL to baseline (app untouched)

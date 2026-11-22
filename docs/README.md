@@ -28,6 +28,9 @@ docs/
 | Deploy to devnet | [deployment/DEVNET_DEPLOYMENT.md](deployment/DEVNET_DEPLOYMENT.md) |
 | SDK integration | [integration/SDK_INTEGRATION.md](integration/SDK_INTEGRATION.md) |
 | Helius RPC setup | [integration/HELIUS_INTEGRATION.md](integration/HELIUS_INTEGRATION.md) |
+| Helius Privacy Rings (SPR) | [integration/HELIUS_PRIVACY_RINGS.md](integration/HELIUS_PRIVACY_RINGS.md) |
+| Crossmint private onramp | [integration/CROSSMINT_INTEGRATION.md](integration/CROSSMINT_INTEGRATION.md) |
+| Formal verification + funding ask | [../dark-protocol/aristotle/](../dark-protocol/aristotle/) |
 | Security notes | [security/SECURITY_REMEDIATION.md](security/SECURITY_REMEDIATION.md) |
 | Program IDs | [reference/PROGRAM_INFO.md](reference/PROGRAM_INFO.md) |
 

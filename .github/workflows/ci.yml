@@ -53,6 +53,50 @@ jobs:
       - name: Build Solana client
         run: npm run build -w @clawd/solanaos-protocol-client
 
+  # ─── protocol.darkx402.com static site ───────────────────────────────────────
+  site:
+    name: Site — lint & test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Lint and test
+        run: npm run check
+
+  # ─── SDK build + type-check ──────────────────────────────────────────────────
+  sdk:
+    name: SDK — build & type-check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/sdk
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: packages/sdk/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (tsc + rollup)
+        run: npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-dist
+          path: packages/sdk/dist/
+
   # ─── Anchor program build + local-validator tests ────────────────────────────
   anchor:
     name: Anchor — build & test dark_protocol_program
