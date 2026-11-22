@@ -1,0 +1,29 @@
+[package]
+name = "dark-protocol"
+version = "0.1.0"
+edition = "2021"
+description = "Dark Protocol — Groth16-verified shielded SOL pool (BN254/Poseidon). Surviving core transplanted from the Dark DeFi rewrite crate `dark-protocol-v2` per TRANSPLANT-SPEC W1/W2; internal logic unchanged from the donor."
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "dark_protocol"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+idl-build = ["anchor-lang/idl-build"]
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = "0.32.1"
+groth16-solana = "0.2.0"
+light-poseidon = "0.2.0"
+ark-bn254 = "0.4.0"
+ark-ff = "0.4.2"
+ark-ec = "0.4.0"
+ark-serialize = "0.4.2"
+solana-poseidon = "2.3.13"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

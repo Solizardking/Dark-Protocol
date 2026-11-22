@@ -38,3 +38,15 @@ cd site && npx wrangler deploy
 
 Afterwards, check that `https://protocol.darkx402.com/solana-foundation` and
 `https://darkx402.com/dark-protocol/solana-foundation` return 200.
+
+## Also in this folder (from main's rewrite commit)
+
+The flat files at this level — `index.html`, `article.html`, `article.md`,
+`article-hero.webp`, `build_worker.py`, `deploy-baseline.txt` — are the
+bundle-era copies of the same pages that came in with the November 2026
+rewrite on main. The page content lives on in `public/` (with the PR's nav,
+@solanafdn card, and mobile-header edits on top); the hero image is
+byte-identical in both places. The deployable Worker is the `worker.js`
+above, serving `public/` via the ASSETS binding — `build_worker.py` built
+the previous embedded bundle and is kept for reference, along with its
+deployment log.

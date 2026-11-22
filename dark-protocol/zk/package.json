@@ -1,0 +1,12 @@
+{
+  "name": "dark-defi-zk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real Groth16 ZK core for the Dark DeFi rewrite (BN254 + Poseidon, circomlib). DEV KEYS ONLY.",
+  "type": "commonjs",
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.5"
+  }
+}
