@@ -126,13 +126,23 @@ the compiled SBF program):
   from it in zero instructions; the only difference anywhere is
   embedded panic-location path strings. Future verdicts can therefore
   be stated against the deployed program's logic.
-- **Proof runs: not yet run.** The first submission (deposit binding)
-  is queued behind pipeline validation on a companion program. Nothing
-  in this section is a proof — the seven properties remain unproven
-  until a prover run says otherwise. One open caveat: the v1.53 frame
-  analysis flags two account-deserialization frames above its 4,096 B
-  guideline (Pool ≈9,088 B, TransferAccounts ≈5,696 B); prover
-  tolerance is untested.
+- **First proof run submitted — no verdicts yet.** The deposit-binding
+  group (P3, 9 rules) went to the Certora Prover on 2026-11-24
+  ([job dcd7c7e674f6422d8fd1666e6a91e40d](https://prover.certora.com/output/7499856/dcd7c7e674f6422d8fd1666e6a91e40d)).
+  All 9 rules returned **UNKNOWN**: the prover stopped at its
+  rule-encoding stage with a stack-frame limit error ([6000]) — the
+  program's account-deserialization frames (flagged in the v1.53 frame
+  analysis at Pool ≈9,088 B, TransferAccounts ≈5,696 B) exceed the
+  encoder's 4,096-byte frame-offset limit. No rule was proven or
+  refuted: this is a prover/toolchain limit hit before any rule could
+  be judged, not a finding about the program, and the seven properties
+  remain unproven until a prover run says otherwise. Next step:
+  resolve the encoder limit with Certora / the toolchain, then
+  re-run. Full record in RESULTS.md on `feat/certora-cvlr-specs`
+  (commit `9c6e57d1b`).
+- **Companion track:** the RedPill verifier suite's first Certora runs
+  stopped at the same stage — rule-encoding failures on harness code,
+  all rules UNKNOWN.
 
 ### Integrations in progress
 
