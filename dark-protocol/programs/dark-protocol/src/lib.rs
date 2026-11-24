@@ -68,6 +68,9 @@ pub mod poseidon_params;
 pub mod vk;
 pub mod zero_chain;
 
+#[cfg(feature = "certora")]
+pub mod certora;
+
 use errors::DarkError;
 use merkle::{Frontier, RootHistory, MAX_LEAVES, ROOT_HISTORY_SIZE, TREE_DEPTH};
 use poseidon::{amount_to_field, is_canonical_field_element, poseidon2, recipient_field};
