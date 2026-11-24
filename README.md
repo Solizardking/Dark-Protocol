@@ -100,6 +100,40 @@ the MPC ceremony and any mainnet conversation: confidential compute,
 private AI inference, and perpetual trading on Solana should not hold
 other people's money on the strength of tests alone.
 
+### Formal verification — Certora track (2026-11-24)
+
+A second, independent verification track is now built for the same
+seven properties, this time for the **Certora Prover** (CVLR specs over
+the compiled SBF program):
+
+- **Spec suite built:** 37 rules across the seven properties
+  (no-panics 5, conservation 7, withdraw gating 5, deposit binding 9,
+  authority impotence 3, progress / error classification 3, root
+  integrity 5), under six documented assumptions — the Poseidon and
+  Groth16 syscalls are summarized, not modelled. Spec infrastructure
+  only: with the feature off, the production build is
+  instruction-identical. Full record:
+  [`dark-protocol/programs/dark-protocol/src/certora/RESULTS.md`](https://github.com/Solizardking/dark-protocol/blob/feat/certora-cvlr-specs/dark-protocol/programs/dark-protocol/src/certora/RESULTS.md)
+  (branch `feat/certora-cvlr-specs`).
+- **Both compile gates pass** — host `cargo check --features certora`
+  and `cargo certora-sbf` (Certora platform-tools v1.53).
+- **The specs are tied to the deployed program, not just the source.**
+  We dumped the deployed devnet program read-only from its ProgramData
+  account: the trimmed ELF is 278,040 B, sha256
+  `9718797889ab59d20bb721e4f6c15eaef0c24a2b86c4ee5e377b09fe6d63debb` —
+  byte-identical to the final rehearsal artifact — and a fresh
+  rebuild's `.text` instruction stream (30,218 instructions) differs
+  from it in zero instructions; the only difference anywhere is
+  embedded panic-location path strings. Future verdicts can therefore
+  be stated against the deployed program's logic.
+- **Proof runs: not yet run.** The first submission (deposit binding)
+  is queued behind pipeline validation on a companion program. Nothing
+  in this section is a proof — the seven properties remain unproven
+  until a prover run says otherwise. One open caveat: the v1.53 frame
+  analysis flags two account-deserialization frames above its 4,096 B
+  guideline (Pool ≈9,088 B, TransferAccounts ≈5,696 B); prover
+  tolerance is untested.
+
 ### Integrations in progress
 
 - **Crossmint** — fiat on-ramp with private delivery (card → USDC →
