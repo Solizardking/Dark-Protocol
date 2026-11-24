@@ -37,6 +37,81 @@ Property numbering follows `aristotle/dark-protocol_spec.md` (Properties 0–6).
   resolved (recover the 2026-11-17 lock state, or dump the deployed program
   and compare instruction streams). `confs/prebuilt.conf` documents the
   discipline for artifact-specific runs.
+- **RESOLVED 2026-11-24** — the dump-and-compare route was taken; verdict
+  **COSMETIC** (instruction semantics identical). See the next section,
+  which supersedes the "Consequence" above and refines the diagnosis.
+
+## Artifact delta — RESOLVED 2026-11-24 (verdict: COSMETIC)
+
+Method: dumped the deployed program from devnet and compared instruction
+streams against the local rebuild (`863ceeb8…`, 279,264 B). Scratch
+evidence (untracked, reproducible by this method):
+`.artifact-check/deployed.so` (raw ProgramData payload) and
+`.artifact-check/deployed_trimmed.so` (the 278,040 B ELF).
+
+**The deployed bytes are exactly the rehearsal artifact.** Read-only
+`getAccountInfo` (Helius devnet) on ProgramData
+`FfN9PpFrCH9bV1ceVhK2pmXrfmWtuPtVJ7HQcof6sKqF` — the program account
+`2GmpuVGf…` was first verified to point at this ProgramData (owner
+BPFLoaderUpgradeable). Account data 331,877 B; header: state =
+ProgramData, last-deploy slot 523,439,600, upgrade authority
+`RQJB3zHzphrNqxFXQVYLuELUoneMDGyErTX1P4jSouW` (matches the rehearsal
+records). The ELF's own section headers end at 278,040 B; the remaining
+53,792 B of account data are all-zero allocation slack. Trimmed ELF
+sha256 = `9718797889ab59d20bb721e4f6c15eaef0c24a2b86c4ee5e377b09fe6d63debb`
+— byte-identical to the W5 rehearsal artifact.
+
+**Comparison (deployed vs rebuild).**
+
+- ELF structure: same 9 sections, same order and types; `.dynsym`,
+  `.dynstr`, `.shstrtab` byte-identical. The only section size difference
+  in the file is `.rodata` +1,224 B — the entire file delta.
+- `.rodata`: 99.34% of deployed bytes lie in identical blocks; **every**
+  difference is inside panic-location file-path strings. The deployed
+  build embeds crate-relative paths (`src/fields/fq.rs`,
+  `src/groth16.rs`, `library/core/src/fmt/mod.rs`, …); the rebuild
+  embeds absolute host paths
+  (`/home/hatch/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/<crate>-<version>/src/…`).
+  The crate versions named in the paths are identical in both builds
+  (ark-ff 0.4.2, ark-bn254 0.4.0, anchor-lang 0.32.3, groth16-solana
+  0.2.0, borsh 0.10.4, bincode 1.3.3, num-bigint 0.4.8, solana-pubkey
+  2.4.0, solana-account-info 2.3.0, solana-instruction 2.3.3,
+  solana-rent 2.2.1, solana-program-entrypoint 2.3.0). This refines the
+  earlier diagnosis: dependency resolution matches — the delta is the
+  build environment's path remapping (the 2026-11-17 build remapped
+  registry paths to crate-relative form; the 2026-11-24 local build did
+  not), not Cargo.lock drift in versions.
+- `.text`: 241,744 B / 30,218 instructions, same size in both. Only
+  1,413 bytes differ, all inside `lddw` immediates — **zero** opcode,
+  register, or branch-offset differences. Full disassembly of both
+  (llvm-objdump, relocations applied; 28,312 lines each): the only
+  differing lines are 707 `lddw` operands, classified by effective
+  (relocated) target: **502** point at byte-identical `.rodata` content;
+  **192** point into post-`.rodata` sections shifted by exactly +0x4c8
+  (the `.rodata` growth); **7** point at the same logical small string
+  (`nf`, `system_program`, …) stored with different packing; **6** point
+  at `core::fmt` panic-piece arrays whose only content difference is the
+  relative-vs-absolute path piece. Zero unexplained.
+- `.data.rel.ro`: 914 u32 words, 158 differ — 42 (pointer, length) pairs
+  for the path strings (pointer → the corresponding absolute-path
+  string; length 10–27 → 91–107), 72 pointers to byte-identical
+  content, 2 section pointers shifted +0x4c8.
+- `.rel.dyn`: 995 entries — 817 byte-identical; 178 differ only in
+  `r_offset` shifted +0x4c8 with identical `r_info`; 0 other.
+- `.dynamic`: 3 address fields (DT_REL, DT_SYMTAB, DT_STRTAB) shifted
+  +0x4c8.
+
+**Verdict: COSMETIC.** The instruction stream is semantically identical;
+the +1,224 B is entirely the longer embedded panic-location path strings
+plus the resulting layout shift. No logic difference was found anywhere.
+
+**Updated claim discipline.** Results from this suite may be stated as
+verdicts on the deployed program's **logic** — source identity and
+instruction-stream equivalence to the deployed artifact are both now
+proven. They may **not** be stated as byte-identity between the local
+build and the deployed artifact (the bytes differ, cosmetically). For
+artifact-exact claims, `confs/prebuilt.conf` with the dumped binary
+(sha256 `97187978…`) remains the route.
 
 ## Wiring invariance (feature off ⇒ production build unchanged)
 
@@ -115,7 +190,10 @@ verbatim as findings — never spec-fixed away.
 
 ## Not claimed
 
-Groth16 soundness, circuit correctness, the trusted setup, Poseidon
-collision resistance (axiom A2, P3 only), and the deployed artifact's
-bytes (see Artifact record) are **not** proven by this suite, even once
-runs pass. Full boundary list: `SURVEY.md`.
+Groth16 soundness, circuit correctness, the trusted setup, and Poseidon
+collision resistance (axiom A2, P3 only) are **not** proven by this suite,
+even once runs pass. Byte-identity between the local build and the
+deployed artifact is likewise **not** claimed (the bytes differ,
+cosmetically); per the Artifact delta resolution above, verdicts may be
+tied to the deployed program's logic via the proven instruction-stream
+equivalence. Full boundary list: `SURVEY.md`.
