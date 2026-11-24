@@ -10,8 +10,11 @@ Property numbering follows `aristotle/dark-protocol_spec.md` (Properties 0–6).
 - Spec suite: **written and compiling** — 37 rules (36 in confs, 1 A3-conditional
   rule written but deliberately excluded from every conf).
 - Host check: **PASS**. Certora compile gate: **PASS** (exit 0).
-- Cloud submission: **NOT SUBMITTED — held by precondition** (see below).
-- All property verdicts: **NOT RUN.**
+- Cloud submission: **SUBMITTED 2026-11-24** — P3 deposit binding, job
+  `dcd7c7e674f6422d8fd1666e6a91e40d` (see "Cloud run — 2026-11-24").
+- Property verdicts: P3 **UNKNOWN ×9** — prover rule-encoding failure
+  ([6000] stack offset), a prover-side wall, not a finding about the
+  program. All other properties **NOT RUN.**
 
 ## Artifact record (read before claiming anything about the deployed program)
 
@@ -147,8 +150,9 @@ artifact-exact claims, `confs/prebuilt.conf` with the dumped binary
 
 The Certora toolchain's stack analysis reports functions exceeding the
 4,096-byte maximum frame offset (printed as `Error:` diagnostics; the gate
-still exits 0). Whether a prover run tolerates them is **untested** — no
-cloud submission has been made.
+still exits 0). A prover run does **not** tolerate them — confirmed by the
+first cloud submission (2026-11-24), where this wall blocked every P3 rule
+at rule encoding. See "Cloud run — 2026-11-24" below.
 
 - `dark_protocol::Pool::try_deserialize_unchecked` — estimated frame
   9,088 bytes; accesses an offset 4,992 bytes greater than the maximum of
@@ -170,23 +174,105 @@ scope for the spec suite.
 | P0 no-UB / no-panics | 5 | NOT RUN |
 | P1 ledger conservation | 7 | NOT RUN |
 | P2 withdraw gating | 5 | NOT RUN |
-| P3 deposit binding (first submission target) | 9 | NOT RUN |
+| P3 deposit binding (first submission target) | 9 | UNKNOWN ×9 — rule encoding failed ([6000] stack offset), job `dcd7c7e6…` |
 | P4 authority impotence | 3 | NOT RUN |
 | P5 progress + error classification | 2 in conf (+1 A3-conditional rule excluded) | NOT RUN |
 | P6 root / frontier integrity | 5 | NOT RUN |
 
-## Submission state
+## Cloud run — 2026-11-24 (P3 deposit binding, first submission)
 
-**Held.** The agreed precondition — a completed first cloud submission on
-the RedPill suite proving the shared `CERTORAKEY` works — is not met:
-`~/workspace/clawd-tee-certora/program/src/certora/RESULTS.md` (unchanged
-since 2026-11-17) states no obligation has been submitted yet, and the
-parallel RedPill Phase 0 run had not landed one as of this writing.
+The precondition landed the same day: the RedPill Phase 0 run exercised
+the shared `CERTORAKEY` against Certora's cloud and it was accepted (the
+CLI notes it is a legacy key; legacy keys still work). P3 was submitted
+the same day, with `CERTORAKEY` loaded into the prover process
+environment only.
 
-When the precondition lands, the first Dark submission is
-`confs/p3_deposit_binding.conf`, with `CERTORAKEY` loaded into the prover
-process environment only. Counterexamples, if any, will be recorded here
-verbatim as findings — never spec-fixed away.
+- **Job:** `dcd7c7e674f6422d8fd1666e6a91e40d` —
+  https://prover.certora.com/output/7499856/dcd7c7e674f6422d8fd1666e6a91e40d
+- **Window (UTC):** submitted 2026-11-24T19:45:33Z; prover start
+  19:48:17Z; finished 19:48:52Z. Job-level status `SUCCEEDED`, exit
+  code 0.
+- **Route:** `confs/run.conf` + `--rule <the 9 P3 rule names>` +
+  `--cargo_tools_version v1.53`. The per-property conf's
+  `"files": ["run.conf"]` inheritance hits the same certora-cli 8.20.3
+  rejection the RedPill run documented (`run.conf does not end with
+  .so`), so the working route from that run was used; **no conf file
+  was edited.** Sources mode; local build via `cargo certora-sbf
+  --tools-version v1.53` (submitted `.so` sha256
+  `695c610b339fbd3475daf1dadf060dfb09d3e1591a51b1adac622c90a035474b`).
+- **Source revision:** `f12798c80` (this branch). The run executed from
+  a byte-identical mirror of this clone on overlay scratch because the
+  home volume was refusing all writes (EDQUOT) at submission time.
+
+### Verdicts — P3: 9/9 UNKNOWN (prover-side encoding failure)
+
+Every rule — and every rule's vacuity check — failed **rule encoding**
+before any SMT solving, with the verbatim error class:
+
+`verifier.RuleEncodingException: [6000] Current stack size is 4096 and
+stack offset exceeded max offset by 136`
+
+for 8 of 9 rules; `rule_p3_second_deposit_chains_bound_leaves` (and its
+vacuity check) exceeded by **2,240**. 36 exception reports in total
+(9 rules × rule + vacuity × 2 encoding passes) — the same reporting
+shape as the RedPill run. Per rule, all UNKNOWN:
+`rule_p3_zero_amount_rejected_before_any_effect`,
+`rule_p3_zero_commitment_rejected_before_any_effect`,
+`rule_p3_noncanonical_commitment_rejected_before_any_effect`,
+`rule_p3_tree_full_rejected`,
+`rule_p3_first_deposit_inserts_bound_leaf`,
+`rule_p3_inserted_leaf_binds_this_amount_not_another`,
+`rule_p3_second_deposit_chains_bound_leaves`,
+`rule_p3_bound_amount_is_the_transferred_amount`,
+`rule_p3_deposit_is_reachable`.
+
+These are prover-side failures: **not** counterexamples, and not
+evidence about the program or the specs in either direction. No rule
+was proven or refuted. (No [3308]/[3006] pointer-analysis errors appear
+in this job — Dark's wall is a different one from RedPill's.)
+
+This is the cloud manifestation of the frame-size wall recorded
+pre-submission in "Toolchain frame-analysis findings" above: the
+program's Anchor-generated deserialization frames exceed the 4,096-byte
+maximum frame offset the SBF→TAC encoder accepts. The local analysis
+named `Pool::try_deserialize_unchecked` (frame ≈9,088 B) and
+`TransferAccounts::try_accounts` (≈5,696 B); the cloud error reports
+the excess at the encoding site — 136 B for most rules, 2,240 B for
+the two-deposit rule — rather than per-function frame totals, so the
+numbers are not expected to correspond one-to-one; the error class is
+the same. Clearing it requires program-code changes (out of scope for
+the spec suite) or a Certora toolchain that lifts the frame limit.
+
+### The doubled-prefix warning — present here too
+
+This job's log also contains, verbatim:
+
+`WARN SBF - Some problem occurred while reading
+./.certora_sources/.certora_sources/dark-protocol-certora/dark-protocol/programs/dark-protocol/src/certora/envs/cvlr_summaries.txt`
+
+and the same for `cvlr_inlining.txt`. The doubled `.certora_sources`
+prefix therefore appears in the Dark run as well as in all six RedPill
+jobs: the env-file loading defect is **pipeline-wide**, not specific
+to either suite. In this run it is not the proximate cause — the
+[6000] stack-offset wall is independent of the pointer-analysis
+summaries / inlining the env files carry — but both defects are
+Certora-side and both are recorded here for the report to Certora.
+
+### Next steps
+
+1. Raise both defects with Certora (support / a newer certora-cli):
+   the doubled `.certora_sources` env path, and the [6000] frame
+   limit against Anchor programs with large account structs.
+2. P1 conservation was **not** submitted: per the run plan it was
+   conditional on P3 returning real verdicts, and it will hit the
+   same [6000] wall (the same deserialization frames sit on the
+   deposit/withdraw paths) until the wall clears.
+3. If the frame limit cannot be lifted Certora-side, the remaining
+   route is a program-side change to shrink the deserialization
+   frames — a dev decision, explicitly out of this suite's scope.
+
+Counterexamples, if any future run produces them, will be recorded
+here verbatim as findings — never spec-fixed away.
 
 ## Not claimed
 
