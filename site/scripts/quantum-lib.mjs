@@ -11,7 +11,6 @@ export const REPO = "https://github.com/Solizardking/Dark-Protocol";
 
 export const LABELS = ["established", "likely", "speculative", "open"];
 export const MATURITY = ["deployed", "merged", "prototype", "proposal", "paused", "research", "none"];
-export const SEVERITY = ["critical", "high", "medium", "low"];
 // Hosts accepted as primary sources (standards bodies, protocol teams, their repos, papers).
 export const PRIMARY_HOSTS = [
   "csrc.nist.gov", "nvlpubs.nist.gov", "doi.org", "github.com", "eprint.iacr.org", "arxiv.org",
@@ -22,7 +21,7 @@ export const PRIMARY_HOSTS = [
 
 export function loadData(dir = dataDir) {
   const read = (f) => JSON.parse(readFileSync(join(dir, f), "utf8"));
-  return { entries: read("entries.json"), inventory: read("inventory.json"), claims: read("claims.json") };
+  return { entries: read("entries.json"), claims: read("claims.json") };
 }
 
 function checkSources(where, sources, errors) {
@@ -36,10 +35,9 @@ function checkSources(where, sources, errors) {
   }
 }
 
-export function validate({ entries, inventory, claims }) {
+export function validate({ entries, claims }) {
   const errors = [];
   if (entries.schema !== "darkx402.quantum-entries/v1") errors.push("entries.json: wrong schema");
-  if (inventory.schema !== "darkx402.quantum-inventory/v1") errors.push("inventory.json: wrong schema");
   if (claims.schema !== "darkx402.quantum-claims/v1") errors.push("claims.json: wrong schema");
   const ids = new Set();
   for (const e of entries.entries || []) {
@@ -56,13 +54,6 @@ export function validate({ entries, inventory, claims }) {
     for (const k of ["primitives", "stack_components"]) if (!Array.isArray(e[k]) || !e[k].length) errors.push(`${w}: ${k} must be a non-empty array`);
     checkSources(w, e.sources, errors);
   }
-  for (const c of inventory.components || []) {
-    const w = `inventory ${c.id}`;
-    for (const k of ["id", "component", "primitive", "quantum_threat", "harvest_now", "defense", "migration_trigger"])
-      if (typeof c[k] !== "string" || !c[k].trim()) errors.push(`${w}: missing ${k}`);
-    if (!SEVERITY.some((s) => (c.severity || "").startsWith(s))) errors.push(`${w}: severity must start with ${SEVERITY.join("/")}`);
-    checkSources(w, c.sources, errors);
-  }
   const cids = (claims.claims || []).map((c) => c.id);
   if (cids.join(",") !== "C1,C2,C3,C4,C5,C6,C7,C8") errors.push("claims.json: must list C1..C8 in order");
   for (const c of claims.claims || []) {
@@ -77,7 +68,7 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 const pill = (cls, text) => `<span class="pill ${esc(cls)}">${esc(text)}</span>`;
 const srcList = (sources) => sources.map((s) => `<a href="${esc(s.url)}" rel="noopener">${esc(s.title)}</a>`).join(" · ");
 
-export function render({ entries, inventory, claims }) {
+export function render({ entries, claims }) {
   // newest date first; within a date, in finding order
   const list = [...entries.entries].sort((a, b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
   const counts = Object.fromEntries(LABELS.map((l) => [l, list.filter((e) => e.label === l).length]));
@@ -90,15 +81,6 @@ export function render({ entries, inventory, claims }) {
   <p class="small"><b>Primitives:</b> ${e.primitives.map(esc).join(", ")} · <b>Affects:</b> ${e.stack_components.map(esc).join(", ")}</p>
   <p class="small"><b>Sources:</b> ${srcList(e.sources)} · <a href="${REPO}/blob/main/${esc(e.note)}" rel="noopener">cycle note</a></p>
 </article>`).join("");
-  const inv = inventory.components.map((c) => `
-<tr>
-  <td><b>${esc(c.component)}</b></td>
-  <td>${esc(c.primitive)}</td>
-  <td>${esc(c.quantum_threat)}</td>
-  <td>${esc(c.harvest_now)}</td>
-  <td>${pill("sev-" + c.severity.split(" ")[0], c.severity)}</td>
-  <td>${esc(c.defense)}<div class="small">Trigger: ${esc(c.migration_trigger)}</div></td>
-</tr>`).join("");
   const cl = claims.claims.map((c) => `
 <tr><td class="mono">${esc(c.id)}</td><td>${esc(c.claim)}</td><td>${pill(c.label, c.label)}<div class="small">brief: ${esc(c.brief_label)}</div></td><td>${esc(c.challenge_status)}</td></tr>`).join("");
   return `<!DOCTYPE html>
@@ -107,7 +89,7 @@ export function render({ entries, inventory, claims }) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quantum defense research feed — Dark Protocol</title>
-<meta name="description" content="A sourced, recurring research feed on post-quantum and P = NP threats to Solana, Bitcoin, Ethereum and the Dark Protocol stack: findings with honest labels, a primitive-by-primitive exposure inventory, and the claims under challenge.">
+<meta name="description" content="A sourced, recurring research feed on post-quantum and P = NP threats to Solana, Bitcoin, Ethereum and the Dark Protocol stack: findings with honest labels, and the claims under challenge.">
 <link rel="canonical" href="https://protocol.darkx402.com/quantum">
 <meta name="theme-color" content="#05060a">
 <meta property="og:type" content="article">
@@ -140,14 +122,7 @@ p{color:var(--muted);margin:.4em 0}.small{font-size:.85rem;color:var(--faint)}.m
 <h1>Quantum defense research feed</h1>
 <p>A recurring, sourced loop on what quantum computers (and, as a stress test, P = NP) would break in Solana, Bitcoin, Ethereum and our own stack, and what defends against it. Each cycle takes one item from the worklist, cites primary sources only, and labels every claim <span class="pill established">established</span><span class="pill likely">likely</span><span class="pill speculative">speculative</span><span class="pill open">open</span>.</p>
 <p class="note small">Research-only and unreviewed: not an audit, not a publication, not advice to move funds. Worklist and method: <a href="${REPO}/blob/main/research/quantum/LOOP.md" rel="noopener">LOOP.md</a>. Companion brief: <a href="https://clawdcompute.us/research" rel="noopener">What If P = NP? (clawdcompute.us/research)</a>.</p>
-<p class="small">${list.length} findings · ${LABELS.map((l) => `${counts[l]} ${l}`).join(" · ")} · ${inventory.components.length} stack components · 8 claims under challenge</p>
-
-<h2 id="inventory">Stack exposure inventory</h2>
-<p class="small">${esc(inventory.evidence)}</p>
-<div class="table"><table>
-<thead><tr><th>Component</th><th>Primitive</th><th>Quantum threat</th><th>Harvest-now?</th><th>Severity</th><th>Defense · trigger</th></tr></thead>
-<tbody>${inv}
-</tbody></table></div>
+<p class="small">${list.length} findings · ${LABELS.map((l) => `${counts[l]} ${l}`).join(" · ")} · 8 claims under challenge</p>
 
 <h2 id="feed">Findings feed</h2>${feed}
 

@@ -35,12 +35,18 @@ test("generated page is in sync with the data (run scripts/build-quantum.mjs)", 
   assert.equal(page, render(data));
 });
 
-test("page renders every entry, inventory row and claim", () => {
+test("page renders every entry and claim, and does not publish the stack inventory", () => {
   for (const e of data.entries.entries) assert.match(page, new RegExp(`id="${e.id}"`));
-  for (const c of data.inventory.components) assert.ok(text.includes(c.component.replace(/&/g, "&amp;").split(" ")[0]), c.id);
   for (const id of ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]) assert.match(text, new RegExp(`\\b${id}\\b`));
   for (const l of LABELS) assert.match(text, new RegExp(l));
   assert.match(text, /Research-only/);
+  assert.doesNotMatch(text, /Stack exposure inventory/);
+  assert.doesNotMatch(page, /id="inventory"/);
+  assert.doesNotMatch(text, /X25519/);
+  assert.doesNotMatch(text, /Treasury/);
+  assert.doesNotMatch(text, /upgrade authorit/);
+  assert.doesNotMatch(text, /exposure/);
+  assert.equal(Object.hasOwn(data, "inventory"), false);
 });
 
 test("LOOP.md holds the ordered nine-item worklist with cycle 1 done and #2 next", () => {

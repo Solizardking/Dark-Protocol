@@ -32,14 +32,14 @@ After #9, start a **refresh pass** from #1: re-check each topic for new SIMDs/BI
 
 ## What one cycle does
 
-1. Read this file; take the `NEXT` item. Read `entries.json`, `inventory.json`, `claims.json` and earlier notes so you don't repeat them.
-2. Search for new material since the last cycle date: NIST CSRC publications; SIMD PRs (`solana-foundation/solana-improvement-documents`, search quantum/falcon/keccak/pq/address); BIPs and bitcoin-dev mailing-list threads; EIPs and ethresear.ch posts by protocol researchers; ZIPs; IACR ePrint; CVEs/advisories touching any primitive in `inventory.json`.
+1. Read this file; take the `NEXT` item. Read `entries.json`, `claims.json` and earlier notes so you don't repeat them. Do not publish a stack-exposure inventory: no inventory table on the page, and no `inventory.json` in this repository.
+2. Search for new material since the last cycle date: NIST CSRC publications; SIMD PRs (`solana-foundation/solana-improvement-documents`, search quantum/falcon/keccak/pq/address); BIPs and bitcoin-dev mailing-list threads; EIPs and ethresear.ch posts by protocol researchers; ZIPs; IACR ePrint; CVEs/advisories touching primitives cited in prior entries and notes.
 3. Write `notes/YYYY-MM-DD-cNN-<slug>.md` with: headline, a findings table (claim · label · primary source), "what this means for our stack", migration triggers, a dated source list, and a "not verified / excluded" section.
-4. Add one `entries.json` object per finding (`id` = `cNN-fNN`; fields: `cycle`, `worklist_item`, `date`, `title`, `label`, `threat`, `primitives`, `stack_components`, `defense`, `maturity` ∈ {deployed, merged, prototype, proposal, paused, research, none}, `sources` [{title, url}], `note`). Update `inventory.json` if exposure or defense changed. For #9, set each claim's `challenge_status` and, if warranted, its `label`, with sources.
+4. Add one `entries.json` object per finding (`id` = `cNN-fNN`; fields: `cycle`, `worklist_item`, `date`, `title`, `label`, `threat`, `primitives`, `stack_components`, `defense`, `maturity` ∈ {deployed, merged, prototype, proposal, paused, research, none}, `sources` [{title, url}], `note`). For #9, set each claim's `challenge_status` and, if warranted, its `label`, with sources.
 5. Regenerate the page: `node site/scripts/build-quantum.mjs`, then `cd site && npm run check` (lint + tests must pass).
 6. Update this file: mark the item `DONE <date> — <note path>`, mark the next item `NEXT`, and add one line to the log below.
 7. Commit on a branch `research/quantum-cNN-<slug>`, open a PR (or push to the open quantum PR if one is still unmerged), and report: the headline finding, PR link, check status, and anything that needs dev's decision. Do not merge or deploy.
 
 ## Log
 
-- 2026-11-25 — cycle 1 (#1 Solana PQ signature paths). Headline: Solana is prepared, not migrated: no protocol-level PQ signatures, every address is an exposed Ed25519 key, fee payers can't be vaulted; SIMD-0461 paused, SIMD-0579 (Keccak-p1600 syscall) reached all approvals on 2026-11-25. 12 entries, 9-component inventory, C1–C8 mirrored.
+- 2026-11-25 — cycle 1 (#1 Solana PQ signature paths). Headline: Solana is prepared, not migrated: no protocol-level PQ signatures, every address is an exposed Ed25519 key, fee payers can't be vaulted; SIMD-0461 paused, SIMD-0579 (Keccak-p1600 syscall) reached all approvals on 2026-11-25. 12 entries, C1–C8 mirrored. The stack inventory is not published.
