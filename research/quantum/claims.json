@@ -1,0 +1,111 @@
+{
+  "schema": "darkx402.quantum-claims/v1",
+  "brief": "What If P = NP? A Blockchain Research Brief v0.1 (2026-11-22), published at clawdcompute.us/research",
+  "label_mapping": "brief 'theorem' → established; 'strongly believed' → likely; 'open' and 'speculative' unchanged",
+  "claims": [
+    {
+      "id": "C1",
+      "claim": "If one-way functions exist, then P ≠ NP.",
+      "brief_label": "theorem — proven, standard",
+      "label": "established",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "claim": "P = NP implies polynomial-time key recovery for Ed25519/ECDSA/RSA, because key recovery is an NP witness-search problem.",
+      "brief_label": "theorem — proven, conditional on the premise",
+      "label": "established",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C3",
+      "claim": "The sum-check protocol's soundness is information-theoretic and survives P = NP.",
+      "brief_label": "theorem — proven, standard",
+      "label": "established",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C4",
+      "claim": "Proof-of-History-style sequential ordering retains meaningful hardness under P = NP, because its hardness is depth-based rather than search-based.",
+      "brief_label": "open",
+      "label": "open",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "claim": "No deployed post-quantum signature scheme survives P = NP.",
+      "brief_label": "open — strongly believed",
+      "label": "likely",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C6",
+      "claim": "Under P = NP, MEV competition collapses to pure latency/ordering competition.",
+      "brief_label": "speculative",
+      "label": "speculative",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C7",
+      "claim": "A functional payment/identity system can be rebuilt on information-theoretic primitives alone at acceptable cost.",
+      "brief_label": "speculative — research programme",
+      "label": "speculative",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    },
+    {
+      "id": "C8",
+      "claim": "Automated Lean proving of the seven unresolved Dark Protocol properties is NP-flavoured witness search and would become polynomial under P = NP.",
+      "brief_label": "open — informal",
+      "label": "open",
+      "challenge_status": "pending (worklist #9)",
+      "sources": [
+        {
+          "title": "Clawd Compute — What If P = NP? A Blockchain Research Brief (v0.1, 2026-11-22)",
+          "url": "https://clawdcompute.us/research"
+        }
+      ]
+    }
+  ]
+}

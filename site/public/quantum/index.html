@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum defense research feed — Dark Protocol</title>
+<meta name="description" content="A sourced, recurring research feed on post-quantum and P = NP threats to Solana, Bitcoin, Ethereum and the Dark Protocol stack: findings with honest labels, a primitive-by-primitive exposure inventory, and the claims under challenge.">
+<link rel="canonical" href="https://protocol.darkx402.com/quantum">
+<meta name="theme-color" content="#05060a">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Dark Protocol">
+<meta property="og:title" content="Quantum defense research feed — Dark Protocol">
+<meta property="og:description" content="Sourced post-quantum findings for Solana and the Dark Protocol stack, labelled established / likely / speculative / open. Research-only.">
+<meta property="og:url" content="https://protocol.darkx402.com/quantum">
+<style>
+:root{--bg:#05060a;--card:#0d1019;--line:#1c2130;--text:#e8eaf2;--muted:#9aa3b8;--faint:#6b7390;--purple:#9945FF;--green:#14F195;--amber:#ffb454;--red:#ff6b7a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:28px 18px 80px}a{color:var(--green)}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:.92rem;margin-bottom:28px}nav a{color:var(--muted);text-decoration:none}nav a:hover{color:var(--text)}
+h1{font-size:2.2rem;line-height:1.15;margin:.2em 0}h2{margin:2.2em 0 .6em;font-size:1.45rem}h3{margin:.3em 0;font-size:1.08rem}
+p{color:var(--muted);margin:.4em 0}.small{font-size:.85rem;color:var(--faint)}.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.eyebrow{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.28em;font-size:.72rem;color:var(--green);text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:12px 0}
+.meta{font-size:.82rem;color:var(--faint)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:.72rem;margin-left:4px;color:var(--text)}
+.pill.established{border-color:var(--green);color:var(--green)}.pill.likely{border-color:var(--purple);color:#c9a6ff}
+.pill.speculative{border-color:var(--amber);color:var(--amber)}.pill.open{border-color:var(--faint);color:var(--muted)}
+.pill.sev-critical{border-color:var(--red);color:var(--red)}.pill.sev-high{border-color:var(--amber);color:var(--amber)}
+.table{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top}th{color:var(--faint);font-weight:500}
+.note{border-left:3px solid var(--amber);padding:8px 14px;background:rgba(255,180,84,.05);border-radius:6px}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="/dark-protocol">Dark Protocol</a><a href="/dark-protocol/article">Article</a><a href="/dark-protocol/solana-foundation">Solana Foundation request</a><a href="/dark-protocol/quantum">Quantum defense</a></nav>
+<div class="eyebrow">Research · post-quantum · updated 2026-11-25</div>
+<h1>Quantum defense research feed</h1>
+<p>A recurring, sourced loop on what quantum computers (and, as a stress test, P = NP) would break in Solana, Bitcoin, Ethereum and our own stack, and what defends against it. Each cycle takes one item from the worklist, cites primary sources only, and labels every claim <span class="pill established">established</span><span class="pill likely">likely</span><span class="pill speculative">speculative</span><span class="pill open">open</span>.</p>
+<p class="note small">Research-only and unreviewed: not an audit, not a publication, not advice to move funds. Worklist and method: <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/LOOP.md" rel="noopener">LOOP.md</a>. Companion brief: <a href="https://clawdcompute.us/research" rel="noopener">What If P = NP? (clawdcompute.us/research)</a>.</p>
+<p class="small">12 findings · 9 established · 1 likely · 0 speculative · 2 open · 9 stack components · 8 claims under challenge</p>
+
+<h2 id="inventory">Stack exposure inventory</h2>
+<p class="small">Read from Solizardking/Dark-Protocol at d3248e0 (packages/tee-agents/src/crypto.ts, payments/x402.ts, attestation/tee.ts, packages/sdk/src/note-encryption.ts, dark-protocol/programs/dark-protocol/src/lib.rs and poseidon.rs, agentwallet/src/keygen.ts)</p>
+<div class="table"><table>
+<thead><tr><th>Component</th><th>Primitive</th><th>Quantum threat</th><th>Harvest-now?</th><th>Severity</th><th>Defense · trigger</th></tr></thead>
+<tbody>
+<tr>
+  <td><b>Treasury, program upgrade authorities, pool authority key</b></td>
+  <td>Ed25519</td>
+  <td>Shor: key recovery from exposed pubkey → theft / malicious upgrade</td>
+  <td>no (live forgery once a CRQC exists)</td>
+  <td><span class="pill sev-critical">critical</span></td>
+  <td>Move cold treasury and upgrade authorities behind a reviewed hash-based (Winternitz) or Falcon-verified vault whose own upgrade authority is PQ-controlled or revoked; keep hot balances small.<div class="small">Trigger: CRQC estimate moves inside 5 years; SIMD for PQ account types; SIMD-0579 activation</div></td>
+</tr>
+<tr>
+  <td><b>Agent wallets (agentwallet keygen, Privy embedded), $CLAWD holder wallets</b></td>
+  <td>Ed25519 (secp256k1 for EVM wallets)</td>
+  <td>Shor: exposed public keys → theft</td>
+  <td>no</td>
+  <td><span class="pill sev-critical">critical</span></td>
+  <td>Generate all wallets from seed phrases (keeps the seed-proof migration path open); cap balances; plan migration to PQ accounts when Solana ships them.<div class="small">Trigger: Solana PQ account type available; seed-proof migration made in-circuit sound</div></td>
+</tr>
+<tr>
+  <td><b>x402 payment authorizations (exact and dark-shielded schemes)</b></td>
+  <td>Ed25519 signatures over canonical authorizations; SPL token transfers</td>
+  <td>Shor: payer key forgery → unauthorized payments</td>
+  <td>low (authorizations are short-lived) but payer keys are long-lived</td>
+  <td><span class="pill sev-high">high</span></td>
+  <td>Short authorization expiry, per-session payer keys, PQ signature (Falcon-512 / ML-DSA-44) as an optional second factor once verifiers exist.<div class="small">Trigger: Same as agent wallets</div></td>
+</tr>
+<tr>
+  <td><b>Dark Protocol withdraw proofs</b></td>
+  <td>Groth16 over BN254 (alt_bn128 syscalls, groth16-solana)</td>
+  <td>Shor: discrete logs on the setup elements recover the trapdoor → forged withdraw proofs → pool drain. Past proofs stay private (Groth16 is zero-knowledge for unbounded adversaries).</td>
+  <td>no for soundness; no privacy leak from proofs</td>
+  <td><span class="pill sev-critical">critical (at CRQC)</span></td>
+  <td>Plan a hash-based proof system (STARK/FRI, as in Anza's Plonky3 prototype) for v2; keep a pause/upgrade path held by a PQ-safe authority; cap pool exposure.<div class="small">Trigger: Any credible ECDLP progress on ~256-bit curves</div></td>
+</tr>
+<tr>
+  <td><b>Note commitments, nullifiers, Merkle tree</b></td>
+  <td>Poseidon over the BN254 scalar field (circomlib)</td>
+  <td>Grover/BHT only: generic quantum speedups reduce, but do not break, preimage and collision security</td>
+  <td>no</td>
+  <td><span class="pill sev-low">low</span></td>
+  <td>Keep; reassess security margin of ~254-bit field hashing against quantum collision search in worklist #4.<div class="small">Trigger: Cryptanalysis of Poseidon itself (classical)</div></td>
+</tr>
+<tr>
+  <td><b>TEE agents: sealed confidential-inference payloads</b></td>
+  <td>X25519 + XSalsa20-Poly1305 (tweetnacl box)</td>
+  <td>Harvest-now-decrypt-later: recorded ciphertexts decrypt once X25519 falls</td>
+  <td>yes</td>
+  <td><span class="pill sev-high">high</span></td>
+  <td>Hybrid key encapsulation (ML-KEM-768, FIPS 203, combined with X25519) for sealed payloads; short retention of ciphertexts.<div class="small">Trigger: Now (harvest risk exists today)</div></td>
+</tr>
+<tr>
+  <td><b>TEE quote signatures and hardware evidence</b></td>
+  <td>Ed25519 report keys; vendor attestation chains (SGX DCAP / SEV-SNP / TDX use classical ECDSA)</td>
+  <td>Shor: forged attestations → fake enclaves accepted</td>
+  <td>no</td>
+  <td><span class="pill sev-medium">medium</span></td>
+  <td>Track vendor PQ attestation roadmaps; bind attestation to short-lived keys; re-verify on rotation.<div class="small">Trigger: Vendor PQ attestation announcements</div></td>
+</tr>
+<tr>
+  <td><b>SDK note encryption (Sapling-style)</b></td>
+  <td>ChaCha20-Poly1305 with a BLAKE3-derived key; no on-chain ciphertexts in the v1 pool</td>
+  <td>v1 stores no note ciphertexts on-chain, so no on-chain harvest today. Separate classical issue: the SDK's 'simplified ECDH' hashes esk‖pk_enc, which the recipient cannot recompute — not a real key agreement.</td>
+  <td>no on-chain (v1)</td>
+  <td><span class="pill sev-medium">medium (classical bug)</span></td>
+  <td>Replace with a real KEM; if note ciphertexts ever go on-chain, use hybrid ML-KEM-768 + X25519 from day one.<div class="small">Trigger: Any design that publishes note ciphertexts</div></td>
+</tr>
+<tr>
+  <td><b>SHA-256, Keccak-256, BLAKE3 across the stack</b></td>
+  <td>Hash functions</td>
+  <td>Grover only</td>
+  <td>no</td>
+  <td><span class="pill sev-low">low</span></td>
+  <td>No change needed at 256-bit outputs.<div class="small">Trigger: None</div></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="feed">Findings feed</h2>
+<article class="card entry" id="c01-f01">
+  <div class="meta"><span class="mono">c01-f01</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">none</span></div>
+  <h3>Solana relies on elliptic-curve crypto in four places</h3>
+  <p><b>Threat.</b> Shor breaks Ed25519 and BLS: forged transactions, forged shreds, forged consensus votes</p>
+  <p><b>Defense.</b> Protocol-level PQ signature scheme plus account migration (not yet scheduled)</p>
+  <p class="small"><b>Primitives:</b> Ed25519, BLS12-381 · <b>Affects:</b> wallets, treasury, agent-wallets</p>
+  <p class="small"><b>Sources:</b> <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f02">
+  <div class="meta"><span class="mono">c01-f02</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">proposal</span></div>
+  <h3>Exposed-pubkey problem: Solana addresses are Ed25519 public keys</h3>
+  <p><b>Threat.</b> Every wallet's public key is on-chain from creation; no hash shield before first spend</p>
+  <p><b>Defense.</b> Address versioning indexing PQ accounts by public-key hash (proposal only)</p>
+  <p class="small"><b>Primitives:</b> Ed25519 · <b>Affects:</b> wallets, treasury, agent-wallets, clawd-token-holders</p>
+  <p class="small"><b>Sources:</b> <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f03">
+  <div class="meta"><span class="mono">c01-f03</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">none</span></div>
+  <h3>Program vaults cannot protect fee payers</h3>
+  <p><b>Threat.</b> Fee-payer accounts stay drainable after a CRQC even if funds sit in a PQ vault</p>
+  <p><b>Defense.</b> Keep fee-payer balances minimal; protocol change needed for a real fix</p>
+  <p class="small"><b>Primitives:</b> Ed25519 · <b>Affects:</b> agent-wallets, x402</p>
+  <p class="small"><b>Sources:</b> <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f04">
+  <div class="meta"><span class="mono">c01-f04</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">research</span></div>
+  <h3>Solana's PQ roadmap is conditional, with no committed scheme or date</h3>
+  <p><b>Threat.</b> Migration only starts once quantum is judged credible; lead time risk</p>
+  <p><b>Defense.</b> Research, then PQ scheme for new wallets, then migrate existing wallets</p>
+  <p class="small"><b>Primitives:</b> Ed25519 · <b>Affects:</b> wallets, treasury</p>
+  <p class="small"><b>Sources:</b> <a href="https://solana.com/news/quantum-readiness" rel="noopener">Solana Foundation — Solana's Quantum Readiness (2026-04-27)</a> · <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f05">
+  <div class="meta"><span class="mono">c01-f05</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">research</span></div>
+  <h3>Falcon (FN-DSA) is the leading Solana candidate; ML-DSA and SLH-DSA are final NIST standards</h3>
+  <p><b>Threat.</b> Scheme choice still open; FN-DSA was a draft standard in April 2026</p>
+  <p><b>Defense.</b> Falcon-512 for compact signatures; ML-DSA-44 as a final-standard fallback</p>
+  <p class="small"><b>Primitives:</b> FN-DSA, ML-DSA, SLH-DSA · <b>Affects:</b> wallets</p>
+  <p class="small"><b>Sources:</b> <a href="https://solana.com/news/quantum-readiness" rel="noopener">Solana Foundation — Solana's Quantum Readiness (2026-04-27)</a> · <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://csrc.nist.gov/pubs/fips/204/final" rel="noopener">NIST FIPS 204 (ML-DSA)</a> · <a href="https://csrc.nist.gov/pubs/fips/205/final" rel="noopener">NIST FIPS 205 (SLH-DSA)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f06">
+  <div class="meta"><span class="mono">c01-f06</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">paused</span></div>
+  <h3>SIMD-0461 (Falcon verification syscall) closed unmerged on 2026-06-17</h3>
+  <p><b>Threat.</b> No native PQ signature verification in the runtime</p>
+  <p><b>Defense.</b> In-program Falcon verification (~133k-175k CU) instead of a syscall</p>
+  <p class="small"><b>Primitives:</b> FN-DSA · <b>Affects:</b> wallets</p>
+  <p class="small"><b>Sources:</b> <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/461" rel="noopener">SIMD-0461 Falcon signature verification syscall</a> · <a href="https://github.com/blueshift-gg/solana-falcon512" rel="noopener">blueshift-gg/solana-falcon512</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f07">
+  <div class="meta"><span class="mono">c01-f07</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">proposal</span></div>
+  <h3>SIMD-0579 Keccak-p1600 syscall reached all approvals on 2026-11-25</h3>
+  <p><b>Threat.</b> Would cut CU cost of hash-based and Falcon-style verification; not merged or activated yet</p>
+  <p><b>Defense.</b> Track merge and feature-gate activation; re-benchmark vault costs then</p>
+  <p class="small"><b>Primitives:</b> Keccak, WOTS, FN-DSA · <b>Affects:</b> wallets, treasury</p>
+  <p class="small"><b>Sources:</b> <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/563" rel="noopener">SIMD-0563 Keccak-p1600 syscall (closed)</a> · <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/579" rel="noopener">SIMD-0579 Keccak-p1600 syscall</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f08">
+  <div class="meta"><span class="mono">c01-f08</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">prototype</span></div>
+  <h3>Blueshift Winternitz vault: opt-in hash-based protection, unaudited</h3>
+  <p><b>Threat.</b> Protects only lamports moved into the vault; one-time keys must never be reused; upgrade authority must also be PQ-safe</p>
+  <p><b>Defense.</b> Candidate cold-treasury vault after independent review</p>
+  <p class="small"><b>Primitives:</b> WOTS, Keccak-256 (224-bit truncated) · <b>Affects:</b> treasury</p>
+  <p class="small"><b>Sources:</b> <a href="https://github.com/blueshift-gg/solana-winternitz-vault" rel="noopener">blueshift-gg/solana-winternitz-vault</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f09">
+  <div class="meta"><span class="mono">c01-f09</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">deployed</span></div>
+  <h3>Falcon-512 and ML-DSA-44 fit one 4,096-byte v1 transaction; SLH-DSA does not</h3>
+  <p><b>Threat.</b> SLH-DSA on-chain needs chunking or account-resident signatures</p>
+  <p><b>Defense.</b> Prefer Falcon-512 or ML-DSA-44 for in-program PQ authorization</p>
+  <p class="small"><b>Primitives:</b> FN-DSA, ML-DSA, SLH-DSA · <b>Affects:</b> wallets, x402</p>
+  <p class="small"><b>Sources:</b> <a href="https://solana.com/upgrades/larger-transaction-sizes" rel="noopener">Solana Foundation — Larger Transaction Sizes</a> · <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/296" rel="noopener">SIMD-0296 Larger Transaction Size</a> · <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/385" rel="noopener">SIMD-0385 Transaction V1 Format</a> · <a href="https://csrc.nist.gov/pubs/fips/204/final" rel="noopener">NIST FIPS 204 (ML-DSA)</a> · <a href="https://csrc.nist.gov/pubs/fips/205/final" rel="noopener">NIST FIPS 205 (SLH-DSA)</a> · <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/461" rel="noopener">SIMD-0461 Falcon signature verification syscall</a> · <a href="https://github.com/blueshift-gg/solana-falcon512" rel="noopener">blueshift-gg/solana-falcon512</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f10">
+  <div class="meta"><span class="mono">c01-f10</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill likely">likely</span> <span class="pill mat">prototype</span></div>
+  <h3>Anza seed-proof migration prototype merged, but not yet post-Q-day sound</h3>
+  <p><b>Threat.</b> Prototype binds sk_seed to pk with an Ed25519 signature, which a quantum adversary could forge</p>
+  <p><b>Defense.</b> Keep seed phrases for every wallet; wait for an in-circuit version</p>
+  <p class="small"><b>Primitives:</b> Ed25519, SHA-512, STARK (Plonky3/FRI) · <b>Affects:</b> wallets, agent-wallets</p>
+  <p class="small"><b>Sources:</b> <a href="https://github.com/anza-xyz/cryptography/pull/10" rel="noopener">anza-xyz/cryptography PR #10 — ed25519-pokos</a> · <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f11">
+  <div class="meta"><span class="mono">c01-f11</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill open">open</span> <span class="pill mat">research</span></div>
+  <h3>PQ consensus aggregation for Alpenglow is unsolved</h3>
+  <p><b>Threat.</b> BLS aggregation has no drop-in PQ replacement</p>
+  <p><b>Defense.</b> Hash-based signatures plus hash-based SNARK aggregation, or Falcon via LaBRADOR (analysis incomplete)</p>
+  <p class="small"><b>Primitives:</b> BLS12-381 · <b>Affects:</b> chain</p>
+  <p class="small"><b>Sources:</b> <a href="https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary" rel="noopener">Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+<article class="card entry" id="c01-f12">
+  <div class="meta"><span class="mono">c01-f12</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill open">open</span> <span class="pill mat">none</span></div>
+  <h3>Hawk-512 reported broken in a SIMD thread; no primary cryptanalysis found</h3>
+  <p><b>Threat.</b> Possible broken scheme with an existing SBF implementation</p>
+  <p><b>Defense.</b> Do not use Hawk until a primary source confirms or refutes the break</p>
+  <p class="small"><b>Primitives:</b> Hawk · <b>Affects:</b> wallets</p>
+  <p class="small"><b>Sources:</b> <a href="https://github.com/solana-foundation/solana-improvement-documents/pull/461" rel="noopener">SIMD-0461 Falcon signature verification syscall</a> · <a href="https://github.com/blueshift-gg/solana-hawk512" rel="noopener">blueshift-gg/solana-hawk512</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
+</article>
+
+<h2 id="claims">Claims under challenge (C1–C8)</h2>
+<p class="small">brief 'theorem' → established; 'strongly believed' → likely; 'open' and 'speculative' unchanged.</p>
+<div class="table"><table>
+<thead><tr><th>ID</th><th>Claim</th><th>Label</th><th>Challenge</th></tr></thead>
+<tbody>
+<tr><td class="mono">C1</td><td>If one-way functions exist, then P ≠ NP.</td><td><span class="pill established">established</span><div class="small">brief: theorem — proven, standard</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C2</td><td>P = NP implies polynomial-time key recovery for Ed25519/ECDSA/RSA, because key recovery is an NP witness-search problem.</td><td><span class="pill established">established</span><div class="small">brief: theorem — proven, conditional on the premise</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C3</td><td>The sum-check protocol's soundness is information-theoretic and survives P = NP.</td><td><span class="pill established">established</span><div class="small">brief: theorem — proven, standard</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C4</td><td>Proof-of-History-style sequential ordering retains meaningful hardness under P = NP, because its hardness is depth-based rather than search-based.</td><td><span class="pill open">open</span><div class="small">brief: open</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C5</td><td>No deployed post-quantum signature scheme survives P = NP.</td><td><span class="pill likely">likely</span><div class="small">brief: open — strongly believed</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C6</td><td>Under P = NP, MEV competition collapses to pure latency/ordering competition.</td><td><span class="pill speculative">speculative</span><div class="small">brief: speculative</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C7</td><td>A functional payment/identity system can be rebuilt on information-theoretic primitives alone at acceptable cost.</td><td><span class="pill speculative">speculative</span><div class="small">brief: speculative — research programme</div></td><td>pending (worklist #9)</td></tr>
+<tr><td class="mono">C8</td><td>Automated Lean proving of the seven unresolved Dark Protocol properties is NP-flavoured witness search and would become polynomial under P = NP.</td><td><span class="pill open">open</span><div class="small">brief: open — informal</div></td><td>pending (worklist #9)</td></tr>
+</tbody></table></div>
+</main>
+</body>
+</html>

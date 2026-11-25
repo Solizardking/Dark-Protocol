@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "lint": "node scripts/lint.mjs",
-    "test": "node --test test/site.test.mjs",
+    "test": "node --test test/site.test.mjs test/quantum.test.mjs",
     "check": "npm run lint && npm test",
+    "quantum:build": "node scripts/build-quantum.mjs",
+    "quantum:sources": "node scripts/check-quantum-sources.mjs",
     "og": "echo 'Render og-src/solana-foundation.html at 1200x630 to public/og/solana-foundation.png (see README.md)'"
   },
   "engines": { "node": ">=20" }

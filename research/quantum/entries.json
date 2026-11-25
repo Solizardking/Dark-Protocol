@@ -1,0 +1,370 @@
+{
+  "schema": "darkx402.quantum-entries/v1",
+  "updated": "2026-11-25",
+  "entries": [
+    {
+      "id": "c01-f01",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Solana relies on elliptic-curve crypto in four places",
+      "label": "established",
+      "threat": "Shor breaks Ed25519 and BLS: forged transactions, forged shreds, forged consensus votes",
+      "primitives": [
+        "Ed25519",
+        "BLS12-381"
+      ],
+      "stack_components": [
+        "wallets",
+        "treasury",
+        "agent-wallets"
+      ],
+      "defense": "Protocol-level PQ signature scheme plus account migration (not yet scheduled)",
+      "maturity": "none",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f02",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Exposed-pubkey problem: Solana addresses are Ed25519 public keys",
+      "label": "established",
+      "threat": "Every wallet's public key is on-chain from creation; no hash shield before first spend",
+      "primitives": [
+        "Ed25519"
+      ],
+      "stack_components": [
+        "wallets",
+        "treasury",
+        "agent-wallets",
+        "clawd-token-holders"
+      ],
+      "defense": "Address versioning indexing PQ accounts by public-key hash (proposal only)",
+      "maturity": "proposal",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f03",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Program vaults cannot protect fee payers",
+      "label": "established",
+      "threat": "Fee-payer accounts stay drainable after a CRQC even if funds sit in a PQ vault",
+      "primitives": [
+        "Ed25519"
+      ],
+      "stack_components": [
+        "agent-wallets",
+        "x402"
+      ],
+      "defense": "Keep fee-payer balances minimal; protocol change needed for a real fix",
+      "maturity": "none",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f04",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Solana's PQ roadmap is conditional, with no committed scheme or date",
+      "label": "established",
+      "threat": "Migration only starts once quantum is judged credible; lead time risk",
+      "primitives": [
+        "Ed25519"
+      ],
+      "stack_components": [
+        "wallets",
+        "treasury"
+      ],
+      "defense": "Research, then PQ scheme for new wallets, then migrate existing wallets",
+      "maturity": "research",
+      "sources": [
+        {
+          "title": "Solana Foundation — Solana's Quantum Readiness (2026-04-27)",
+          "url": "https://solana.com/news/quantum-readiness"
+        },
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f05",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Falcon (FN-DSA) is the leading Solana candidate; ML-DSA and SLH-DSA are final NIST standards",
+      "label": "established",
+      "threat": "Scheme choice still open; FN-DSA was a draft standard in April 2026",
+      "primitives": [
+        "FN-DSA",
+        "ML-DSA",
+        "SLH-DSA"
+      ],
+      "stack_components": [
+        "wallets"
+      ],
+      "defense": "Falcon-512 for compact signatures; ML-DSA-44 as a final-standard fallback",
+      "maturity": "research",
+      "sources": [
+        {
+          "title": "Solana Foundation — Solana's Quantum Readiness (2026-04-27)",
+          "url": "https://solana.com/news/quantum-readiness"
+        },
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        },
+        {
+          "title": "NIST FIPS 204 (ML-DSA)",
+          "url": "https://csrc.nist.gov/pubs/fips/204/final"
+        },
+        {
+          "title": "NIST FIPS 205 (SLH-DSA)",
+          "url": "https://csrc.nist.gov/pubs/fips/205/final"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f06",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "SIMD-0461 (Falcon verification syscall) closed unmerged on 2026-06-17",
+      "label": "established",
+      "threat": "No native PQ signature verification in the runtime",
+      "primitives": [
+        "FN-DSA"
+      ],
+      "stack_components": [
+        "wallets"
+      ],
+      "defense": "In-program Falcon verification (~133k-175k CU) instead of a syscall",
+      "maturity": "paused",
+      "sources": [
+        {
+          "title": "SIMD-0461 Falcon signature verification syscall",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/461"
+        },
+        {
+          "title": "blueshift-gg/solana-falcon512",
+          "url": "https://github.com/blueshift-gg/solana-falcon512"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f07",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "SIMD-0579 Keccak-p1600 syscall reached all approvals on 2026-11-25",
+      "label": "established",
+      "threat": "Would cut CU cost of hash-based and Falcon-style verification; not merged or activated yet",
+      "primitives": [
+        "Keccak",
+        "WOTS",
+        "FN-DSA"
+      ],
+      "stack_components": [
+        "wallets",
+        "treasury"
+      ],
+      "defense": "Track merge and feature-gate activation; re-benchmark vault costs then",
+      "maturity": "proposal",
+      "sources": [
+        {
+          "title": "SIMD-0563 Keccak-p1600 syscall (closed)",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/563"
+        },
+        {
+          "title": "SIMD-0579 Keccak-p1600 syscall",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/579"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f08",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Blueshift Winternitz vault: opt-in hash-based protection, unaudited",
+      "label": "established",
+      "threat": "Protects only lamports moved into the vault; one-time keys must never be reused; upgrade authority must also be PQ-safe",
+      "primitives": [
+        "WOTS",
+        "Keccak-256 (224-bit truncated)"
+      ],
+      "stack_components": [
+        "treasury"
+      ],
+      "defense": "Candidate cold-treasury vault after independent review",
+      "maturity": "prototype",
+      "sources": [
+        {
+          "title": "blueshift-gg/solana-winternitz-vault",
+          "url": "https://github.com/blueshift-gg/solana-winternitz-vault"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f09",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Falcon-512 and ML-DSA-44 fit one 4,096-byte v1 transaction; SLH-DSA does not",
+      "label": "established",
+      "threat": "SLH-DSA on-chain needs chunking or account-resident signatures",
+      "primitives": [
+        "FN-DSA",
+        "ML-DSA",
+        "SLH-DSA"
+      ],
+      "stack_components": [
+        "wallets",
+        "x402"
+      ],
+      "defense": "Prefer Falcon-512 or ML-DSA-44 for in-program PQ authorization",
+      "maturity": "deployed",
+      "sources": [
+        {
+          "title": "Solana Foundation — Larger Transaction Sizes",
+          "url": "https://solana.com/upgrades/larger-transaction-sizes"
+        },
+        {
+          "title": "SIMD-0296 Larger Transaction Size",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/296"
+        },
+        {
+          "title": "SIMD-0385 Transaction V1 Format",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/385"
+        },
+        {
+          "title": "NIST FIPS 204 (ML-DSA)",
+          "url": "https://csrc.nist.gov/pubs/fips/204/final"
+        },
+        {
+          "title": "NIST FIPS 205 (SLH-DSA)",
+          "url": "https://csrc.nist.gov/pubs/fips/205/final"
+        },
+        {
+          "title": "SIMD-0461 Falcon signature verification syscall",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/461"
+        },
+        {
+          "title": "blueshift-gg/solana-falcon512",
+          "url": "https://github.com/blueshift-gg/solana-falcon512"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f10",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Anza seed-proof migration prototype merged, but not yet post-Q-day sound",
+      "label": "likely",
+      "threat": "Prototype binds sk_seed to pk with an Ed25519 signature, which a quantum adversary could forge",
+      "primitives": [
+        "Ed25519",
+        "SHA-512",
+        "STARK (Plonky3/FRI)"
+      ],
+      "stack_components": [
+        "wallets",
+        "agent-wallets"
+      ],
+      "defense": "Keep seed phrases for every wallet; wait for an in-circuit version",
+      "maturity": "prototype",
+      "sources": [
+        {
+          "title": "anza-xyz/cryptography PR #10 — ed25519-pokos",
+          "url": "https://github.com/anza-xyz/cryptography/pull/10"
+        },
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f11",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "PQ consensus aggregation for Alpenglow is unsolved",
+      "label": "open",
+      "threat": "BLS aggregation has no drop-in PQ replacement",
+      "primitives": [
+        "BLS12-381"
+      ],
+      "stack_components": [
+        "chain"
+      ],
+      "defense": "Hash-based signatures plus hash-based SNARK aggregation, or Falcon via LaBRADOR (analysis incomplete)",
+      "maturity": "research",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    },
+    {
+      "id": "c01-f12",
+      "cycle": 1,
+      "worklist_item": 1,
+      "date": "2026-11-25",
+      "title": "Hawk-512 reported broken in a SIMD thread; no primary cryptanalysis found",
+      "label": "open",
+      "threat": "Possible broken scheme with an existing SBF implementation",
+      "primitives": [
+        "Hawk"
+      ],
+      "stack_components": [
+        "wallets"
+      ],
+      "defense": "Do not use Hawk until a primary source confirms or refutes the break",
+      "maturity": "none",
+      "sources": [
+        {
+          "title": "SIMD-0461 Falcon signature verification syscall",
+          "url": "https://github.com/solana-foundation/solana-improvement-documents/pull/461"
+        },
+        {
+          "title": "blueshift-gg/solana-hawk512",
+          "url": "https://github.com/blueshift-gg/solana-hawk512"
+        }
+      ],
+      "note": "research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md"
+    }
+  ]
+}
