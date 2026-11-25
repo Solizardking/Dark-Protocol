@@ -4,9 +4,9 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadData, dataDir } from "./quantum-lib.mjs";
 
-const { entries, inventory, claims } = loadData();
+const { entries, claims } = loadData();
 const urls = new Set();
-for (const x of [...entries.entries, ...inventory.components, ...claims.claims]) for (const s of x.sources) urls.add(s.url);
+for (const x of [...entries.entries, ...claims.claims]) for (const s of x.sources) urls.add(s.url);
 for (const f of readdirSync(join(dataDir, "notes"))) {
   for (const m of readFileSync(join(dataDir, "notes", f), "utf8").matchAll(/https:\/\/[^\s)>\]]+/g)) urls.add(m[0].replace(/[.,;]+$/, ""));
 }

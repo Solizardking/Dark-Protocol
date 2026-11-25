@@ -214,7 +214,7 @@
       "date": "2026-11-25",
       "title": "Blueshift Winternitz vault: opt-in hash-based protection, unaudited",
       "label": "established",
-      "threat": "Protects only lamports moved into the vault; one-time keys must never be reused; upgrade authority must also be PQ-safe",
+      "threat": "Protects only lamports moved into the vault; one-time keys must never be reused; a keypair-held program owner still puts funds at risk",
       "primitives": [
         "WOTS",
         "Keccak-256 (224-bit truncated)"

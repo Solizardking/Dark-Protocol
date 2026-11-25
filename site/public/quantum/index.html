@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quantum defense research feed — Dark Protocol</title>
-<meta name="description" content="A sourced, recurring research feed on post-quantum and P = NP threats to Solana, Bitcoin, Ethereum and the Dark Protocol stack: findings with honest labels, a primitive-by-primitive exposure inventory, and the claims under challenge.">
+<meta name="description" content="A sourced, recurring research feed on post-quantum and P = NP threats to Solana, Bitcoin, Ethereum and the Dark Protocol stack: findings with honest labels, and the claims under challenge.">
 <link rel="canonical" href="https://protocol.darkx402.com/quantum">
 <meta name="theme-color" content="#05060a">
 <meta property="og:type" content="article">
@@ -37,86 +37,7 @@ p{color:var(--muted);margin:.4em 0}.small{font-size:.85rem;color:var(--faint)}.m
 <h1>Quantum defense research feed</h1>
 <p>A recurring, sourced loop on what quantum computers (and, as a stress test, P = NP) would break in Solana, Bitcoin, Ethereum and our own stack, and what defends against it. Each cycle takes one item from the worklist, cites primary sources only, and labels every claim <span class="pill established">established</span><span class="pill likely">likely</span><span class="pill speculative">speculative</span><span class="pill open">open</span>.</p>
 <p class="note small">Research-only and unreviewed: not an audit, not a publication, not advice to move funds. Worklist and method: <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/LOOP.md" rel="noopener">LOOP.md</a>. Companion brief: <a href="https://clawdcompute.us/research" rel="noopener">What If P = NP? (clawdcompute.us/research)</a>.</p>
-<p class="small">12 findings · 9 established · 1 likely · 0 speculative · 2 open · 9 stack components · 8 claims under challenge</p>
-
-<h2 id="inventory">Stack exposure inventory</h2>
-<p class="small">Read from Solizardking/Dark-Protocol at d3248e0 (packages/tee-agents/src/crypto.ts, payments/x402.ts, attestation/tee.ts, packages/sdk/src/note-encryption.ts, dark-protocol/programs/dark-protocol/src/lib.rs and poseidon.rs, agentwallet/src/keygen.ts)</p>
-<div class="table"><table>
-<thead><tr><th>Component</th><th>Primitive</th><th>Quantum threat</th><th>Harvest-now?</th><th>Severity</th><th>Defense · trigger</th></tr></thead>
-<tbody>
-<tr>
-  <td><b>Treasury, program upgrade authorities, pool authority key</b></td>
-  <td>Ed25519</td>
-  <td>Shor: key recovery from exposed pubkey → theft / malicious upgrade</td>
-  <td>no (live forgery once a CRQC exists)</td>
-  <td><span class="pill sev-critical">critical</span></td>
-  <td>Move cold treasury and upgrade authorities behind a reviewed hash-based (Winternitz) or Falcon-verified vault whose own upgrade authority is PQ-controlled or revoked; keep hot balances small.<div class="small">Trigger: CRQC estimate moves inside 5 years; SIMD for PQ account types; SIMD-0579 activation</div></td>
-</tr>
-<tr>
-  <td><b>Agent wallets (agentwallet keygen, Privy embedded), $CLAWD holder wallets</b></td>
-  <td>Ed25519 (secp256k1 for EVM wallets)</td>
-  <td>Shor: exposed public keys → theft</td>
-  <td>no</td>
-  <td><span class="pill sev-critical">critical</span></td>
-  <td>Generate all wallets from seed phrases (keeps the seed-proof migration path open); cap balances; plan migration to PQ accounts when Solana ships them.<div class="small">Trigger: Solana PQ account type available; seed-proof migration made in-circuit sound</div></td>
-</tr>
-<tr>
-  <td><b>x402 payment authorizations (exact and dark-shielded schemes)</b></td>
-  <td>Ed25519 signatures over canonical authorizations; SPL token transfers</td>
-  <td>Shor: payer key forgery → unauthorized payments</td>
-  <td>low (authorizations are short-lived) but payer keys are long-lived</td>
-  <td><span class="pill sev-high">high</span></td>
-  <td>Short authorization expiry, per-session payer keys, PQ signature (Falcon-512 / ML-DSA-44) as an optional second factor once verifiers exist.<div class="small">Trigger: Same as agent wallets</div></td>
-</tr>
-<tr>
-  <td><b>Dark Protocol withdraw proofs</b></td>
-  <td>Groth16 over BN254 (alt_bn128 syscalls, groth16-solana)</td>
-  <td>Shor: discrete logs on the setup elements recover the trapdoor → forged withdraw proofs → pool drain. Past proofs stay private (Groth16 is zero-knowledge for unbounded adversaries).</td>
-  <td>no for soundness; no privacy leak from proofs</td>
-  <td><span class="pill sev-critical">critical (at CRQC)</span></td>
-  <td>Plan a hash-based proof system (STARK/FRI, as in Anza's Plonky3 prototype) for v2; keep a pause/upgrade path held by a PQ-safe authority; cap pool exposure.<div class="small">Trigger: Any credible ECDLP progress on ~256-bit curves</div></td>
-</tr>
-<tr>
-  <td><b>Note commitments, nullifiers, Merkle tree</b></td>
-  <td>Poseidon over the BN254 scalar field (circomlib)</td>
-  <td>Grover/BHT only: generic quantum speedups reduce, but do not break, preimage and collision security</td>
-  <td>no</td>
-  <td><span class="pill sev-low">low</span></td>
-  <td>Keep; reassess security margin of ~254-bit field hashing against quantum collision search in worklist #4.<div class="small">Trigger: Cryptanalysis of Poseidon itself (classical)</div></td>
-</tr>
-<tr>
-  <td><b>TEE agents: sealed confidential-inference payloads</b></td>
-  <td>X25519 + XSalsa20-Poly1305 (tweetnacl box)</td>
-  <td>Harvest-now-decrypt-later: recorded ciphertexts decrypt once X25519 falls</td>
-  <td>yes</td>
-  <td><span class="pill sev-high">high</span></td>
-  <td>Hybrid key encapsulation (ML-KEM-768, FIPS 203, combined with X25519) for sealed payloads; short retention of ciphertexts.<div class="small">Trigger: Now (harvest risk exists today)</div></td>
-</tr>
-<tr>
-  <td><b>TEE quote signatures and hardware evidence</b></td>
-  <td>Ed25519 report keys; vendor attestation chains (SGX DCAP / SEV-SNP / TDX use classical ECDSA)</td>
-  <td>Shor: forged attestations → fake enclaves accepted</td>
-  <td>no</td>
-  <td><span class="pill sev-medium">medium</span></td>
-  <td>Track vendor PQ attestation roadmaps; bind attestation to short-lived keys; re-verify on rotation.<div class="small">Trigger: Vendor PQ attestation announcements</div></td>
-</tr>
-<tr>
-  <td><b>SDK note encryption (Sapling-style)</b></td>
-  <td>ChaCha20-Poly1305 with a BLAKE3-derived key; no on-chain ciphertexts in the v1 pool</td>
-  <td>v1 stores no note ciphertexts on-chain, so no on-chain harvest today. Separate classical issue: the SDK's 'simplified ECDH' hashes esk‖pk_enc, which the recipient cannot recompute — not a real key agreement.</td>
-  <td>no on-chain (v1)</td>
-  <td><span class="pill sev-medium">medium (classical bug)</span></td>
-  <td>Replace with a real KEM; if note ciphertexts ever go on-chain, use hybrid ML-KEM-768 + X25519 from day one.<div class="small">Trigger: Any design that publishes note ciphertexts</div></td>
-</tr>
-<tr>
-  <td><b>SHA-256, Keccak-256, BLAKE3 across the stack</b></td>
-  <td>Hash functions</td>
-  <td>Grover only</td>
-  <td>no</td>
-  <td><span class="pill sev-low">low</span></td>
-  <td>No change needed at 256-bit outputs.<div class="small">Trigger: None</div></td>
-</tr>
-</tbody></table></div>
+<p class="small">12 findings · 9 established · 1 likely · 0 speculative · 2 open · 8 claims under challenge</p>
 
 <h2 id="feed">Findings feed</h2>
 <article class="card entry" id="c01-f01">
@@ -178,7 +99,7 @@ p{color:var(--muted);margin:.4em 0}.small{font-size:.85rem;color:var(--faint)}.m
 <article class="card entry" id="c01-f08">
   <div class="meta"><span class="mono">c01-f08</span> · 2026-11-25 · cycle 1 · worklist #1 <span class="pill established">established</span> <span class="pill mat">prototype</span></div>
   <h3>Blueshift Winternitz vault: opt-in hash-based protection, unaudited</h3>
-  <p><b>Threat.</b> Protects only lamports moved into the vault; one-time keys must never be reused; upgrade authority must also be PQ-safe</p>
+  <p><b>Threat.</b> Protects only lamports moved into the vault; one-time keys must never be reused; a keypair-held program owner still puts funds at risk</p>
   <p><b>Defense.</b> Candidate cold-treasury vault after independent review</p>
   <p class="small"><b>Primitives:</b> WOTS, Keccak-256 (224-bit truncated) · <b>Affects:</b> treasury</p>
   <p class="small"><b>Sources:</b> <a href="https://github.com/blueshift-gg/solana-winternitz-vault" rel="noopener">blueshift-gg/solana-winternitz-vault</a> · <a href="https://github.com/Solizardking/Dark-Protocol/blob/main/research/quantum/notes/2026-11-25-c01-solana-pq-signature-paths.md" rel="noopener">cycle note</a></p>
