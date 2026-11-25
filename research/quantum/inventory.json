@@ -1,0 +1,171 @@
+{
+  "schema": "darkx402.quantum-inventory/v1",
+  "updated": "2026-11-25",
+  "evidence": "Read from Solizardking/Dark-Protocol at d3248e0 (packages/tee-agents/src/crypto.ts, payments/x402.ts, attestation/tee.ts, packages/sdk/src/note-encryption.ts, dark-protocol/programs/dark-protocol/src/lib.rs and poseidon.rs, agentwallet/src/keygen.ts)",
+  "components": [
+    {
+      "id": "treasury-authorities",
+      "component": "Treasury, program upgrade authorities, pool authority key",
+      "primitive": "Ed25519",
+      "quantum_threat": "Shor: key recovery from exposed pubkey → theft / malicious upgrade",
+      "harvest_now": "no (live forgery once a CRQC exists)",
+      "severity": "critical",
+      "defense": "Move cold treasury and upgrade authorities behind a reviewed hash-based (Winternitz) or Falcon-verified vault whose own upgrade authority is PQ-controlled or revoked; keep hot balances small.",
+      "migration_trigger": "CRQC estimate moves inside 5 years; SIMD for PQ account types; SIMD-0579 activation",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        },
+        {
+          "title": "blueshift-gg/solana-winternitz-vault",
+          "url": "https://github.com/blueshift-gg/solana-winternitz-vault"
+        }
+      ]
+    },
+    {
+      "id": "agent-wallets",
+      "component": "Agent wallets (agentwallet keygen, Privy embedded), $CLAWD holder wallets",
+      "primitive": "Ed25519 (secp256k1 for EVM wallets)",
+      "quantum_threat": "Shor: exposed public keys → theft",
+      "harvest_now": "no",
+      "severity": "critical",
+      "defense": "Generate all wallets from seed phrases (keeps the seed-proof migration path open); cap balances; plan migration to PQ accounts when Solana ships them.",
+      "migration_trigger": "Solana PQ account type available; seed-proof migration made in-circuit sound",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        },
+        {
+          "title": "anza-xyz/cryptography PR #10 — ed25519-pokos",
+          "url": "https://github.com/anza-xyz/cryptography/pull/10"
+        }
+      ]
+    },
+    {
+      "id": "x402-auth",
+      "component": "x402 payment authorizations (exact and dark-shielded schemes)",
+      "primitive": "Ed25519 signatures over canonical authorizations; SPL token transfers",
+      "quantum_threat": "Shor: payer key forgery → unauthorized payments",
+      "harvest_now": "low (authorizations are short-lived) but payer keys are long-lived",
+      "severity": "high",
+      "defense": "Short authorization expiry, per-session payer keys, PQ signature (Falcon-512 / ML-DSA-44) as an optional second factor once verifiers exist.",
+      "migration_trigger": "Same as agent wallets",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        },
+        {
+          "title": "NIST FIPS 204 (ML-DSA)",
+          "url": "https://csrc.nist.gov/pubs/fips/204/final"
+        }
+      ]
+    },
+    {
+      "id": "groth16-verifier",
+      "component": "Dark Protocol withdraw proofs",
+      "primitive": "Groth16 over BN254 (alt_bn128 syscalls, groth16-solana)",
+      "quantum_threat": "Shor: discrete logs on the setup elements recover the trapdoor → forged withdraw proofs → pool drain. Past proofs stay private (Groth16 is zero-knowledge for unbounded adversaries).",
+      "harvest_now": "no for soundness; no privacy leak from proofs",
+      "severity": "critical (at CRQC)",
+      "defense": "Plan a hash-based proof system (STARK/FRI, as in Anza's Plonky3 prototype) for v2; keep a pause/upgrade path held by a PQ-safe authority; cap pool exposure.",
+      "migration_trigger": "Any credible ECDLP progress on ~256-bit curves",
+      "sources": [
+        {
+          "title": "Anza — Securing Solana Against a Powerful Quantum Adversary (2026-04-27)",
+          "url": "https://www.anza.xyz/blog/securing-solana-against-a-powerful-quantum-adversary"
+        },
+        {
+          "title": "anza-xyz/cryptography PR #10 — ed25519-pokos",
+          "url": "https://github.com/anza-xyz/cryptography/pull/10"
+        }
+      ]
+    },
+    {
+      "id": "poseidon-merkle",
+      "component": "Note commitments, nullifiers, Merkle tree",
+      "primitive": "Poseidon over the BN254 scalar field (circomlib)",
+      "quantum_threat": "Grover/BHT only: generic quantum speedups reduce, but do not break, preimage and collision security",
+      "harvest_now": "no",
+      "severity": "low",
+      "defense": "Keep; reassess security margin of ~254-bit field hashing against quantum collision search in worklist #4.",
+      "migration_trigger": "Cryptanalysis of Poseidon itself (classical)",
+      "sources": [
+        {
+          "title": "NIST IR 8547 — Transition to Post-Quantum Cryptography Standards (final)",
+          "url": "https://csrc.nist.gov/pubs/ir/8547/final"
+        }
+      ]
+    },
+    {
+      "id": "tee-sealed-payloads",
+      "component": "TEE agents: sealed confidential-inference payloads",
+      "primitive": "X25519 + XSalsa20-Poly1305 (tweetnacl box)",
+      "quantum_threat": "Harvest-now-decrypt-later: recorded ciphertexts decrypt once X25519 falls",
+      "harvest_now": "yes",
+      "severity": "high",
+      "defense": "Hybrid key encapsulation (ML-KEM-768, FIPS 203, combined with X25519) for sealed payloads; short retention of ciphertexts.",
+      "migration_trigger": "Now (harvest risk exists today)",
+      "sources": [
+        {
+          "title": "NIST FIPS 203 (ML-KEM)",
+          "url": "https://csrc.nist.gov/pubs/fips/203/final"
+        },
+        {
+          "title": "NIST IR 8547 — Transition to Post-Quantum Cryptography Standards (final)",
+          "url": "https://csrc.nist.gov/pubs/ir/8547/final"
+        }
+      ]
+    },
+    {
+      "id": "tee-attestation",
+      "component": "TEE quote signatures and hardware evidence",
+      "primitive": "Ed25519 report keys; vendor attestation chains (SGX DCAP / SEV-SNP / TDX use classical ECDSA)",
+      "quantum_threat": "Shor: forged attestations → fake enclaves accepted",
+      "harvest_now": "no",
+      "severity": "medium",
+      "defense": "Track vendor PQ attestation roadmaps; bind attestation to short-lived keys; re-verify on rotation.",
+      "migration_trigger": "Vendor PQ attestation announcements",
+      "sources": [
+        {
+          "title": "NIST IR 8547 — Transition to Post-Quantum Cryptography Standards (final)",
+          "url": "https://csrc.nist.gov/pubs/ir/8547/final"
+        }
+      ]
+    },
+    {
+      "id": "note-encryption-sdk",
+      "component": "SDK note encryption (Sapling-style)",
+      "primitive": "ChaCha20-Poly1305 with a BLAKE3-derived key; no on-chain ciphertexts in the v1 pool",
+      "quantum_threat": "v1 stores no note ciphertexts on-chain, so no on-chain harvest today. Separate classical issue: the SDK's 'simplified ECDH' hashes esk‖pk_enc, which the recipient cannot recompute — not a real key agreement.",
+      "harvest_now": "no on-chain (v1)",
+      "severity": "medium (classical bug)",
+      "defense": "Replace with a real KEM; if note ciphertexts ever go on-chain, use hybrid ML-KEM-768 + X25519 from day one.",
+      "migration_trigger": "Any design that publishes note ciphertexts",
+      "sources": [
+        {
+          "title": "NIST FIPS 203 (ML-KEM)",
+          "url": "https://csrc.nist.gov/pubs/fips/203/final"
+        }
+      ]
+    },
+    {
+      "id": "hashes",
+      "component": "SHA-256, Keccak-256, BLAKE3 across the stack",
+      "primitive": "Hash functions",
+      "quantum_threat": "Grover only",
+      "harvest_now": "no",
+      "severity": "low",
+      "defense": "No change needed at 256-bit outputs.",
+      "migration_trigger": "None",
+      "sources": [
+        {
+          "title": "NIST IR 8547 — Transition to Post-Quantum Cryptography Standards (final)",
+          "url": "https://csrc.nist.gov/pubs/ir/8547/final"
+        }
+      ]
+    }
+  ]
+}

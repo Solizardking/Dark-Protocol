@@ -9,6 +9,8 @@ const ROUTES = {
   "/article": "/article/index.html",
   "/solana-foundation": "/solana-foundation/index.html",
   "/verification": "/solana-foundation/index.html",
+  "/quantum": "/quantum/index.html",
+  "/research/quantum": "/quantum/index.html",
 };
 
 export function resolvePath(pathname) {
